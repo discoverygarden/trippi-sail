@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.apache.log4j.Logger;
 import org.jrdf.graph.GraphElementFactoryException;
 import org.jrdf.graph.ObjectNode;
 import org.jrdf.graph.PredicateNode;
@@ -21,13 +20,6 @@ import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
 
 public class SesameTripleIterator extends TripleIterator {
-
-    private static final Logger logger = Logger.getLogger(SesameTripleIterator.class.getName());
-
-    private QueryLanguage m_lang;
-    private String m_queryText;
-    private Repository m_repository;
-
     private RDFUtil m_util;
 
     private GraphQueryResult result;
@@ -35,13 +27,16 @@ public class SesameTripleIterator extends TripleIterator {
     public SesameTripleIterator(QueryLanguage lang,
                                 String queryText,
                                 Repository repository) throws TrippiException {
-        m_lang       = lang;
-        m_queryText  = queryText;
-        m_repository = repository;
 
         try { m_util = new RDFUtil(); } catch (Exception e) { } // won't happen
 
-
+        try {
+        	GraphQuery query = repository.getConnection().prepareGraphQuery(lang, queryText);
+        	result = query.evaluate();
+        }
+        catch (Exception e) {
+        	throw new TrippiException("Exception in Triple query.", e);
+        }
     }
 
     //////////////////////////////////////////////////////////////////////////

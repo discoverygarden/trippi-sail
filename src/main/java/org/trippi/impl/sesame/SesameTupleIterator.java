@@ -5,7 +5,6 @@ import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.jrdf.graph.GraphElementFactoryException;
 import org.jrdf.graph.Node;
 import org.jrdf.graph.ObjectNode;
@@ -22,12 +21,6 @@ import org.trippi.TupleIterator;
 public class SesameTupleIterator 
              extends TupleIterator {
 
-    private static final Logger logger = Logger.getLogger(SesameTupleIterator.class.getName());
-
-    private QueryLanguage m_lang;
-    private String m_queryText;
-    private Repository m_repository;
-
     private RDFUtil m_util;
     
     private TupleQueryResult result;
@@ -35,14 +28,11 @@ public class SesameTupleIterator
     public SesameTupleIterator(QueryLanguage lang,
                                String queryText,
                                Repository repository) throws TrippiException {
-        m_lang       = lang;
-        m_queryText  = queryText;
-        m_repository = repository;
 
         try { m_util = new RDFUtil(); } catch (Exception e) { } // won't happen
 
 		try {
-			TupleQuery query = m_repository.getConnection().prepareTupleQuery(m_lang, m_queryText);
+			TupleQuery query = repository.getConnection().prepareTupleQuery(lang, queryText);
 			result = query.evaluate();
 		} catch (Exception e) {
 			throw new TrippiException("Exception while running query.", e);
