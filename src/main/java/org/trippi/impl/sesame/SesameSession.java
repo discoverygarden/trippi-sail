@@ -1,6 +1,7 @@
 package org.trippi.impl.sesame;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -16,14 +17,14 @@ import org.jrdf.graph.SubjectNode;
 import org.jrdf.graph.Triple;
 import org.jrdf.graph.URIReference;
 import org.openrdf.model.ValueFactory;
-import org.openrdf.sesame.constants.QueryLanguage;
-import org.openrdf.sesame.repository.SesameRepository;
-import org.openrdf.sesame.repository.local.LocalRepository;
+import org.openrdf.query.QueryLanguage;
+import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryException;
 import org.trippi.RDFUtil;
 import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
-import org.trippi.impl.base.AliasManager;
+import org.trippi.AliasManager;
 import org.trippi.impl.base.TriplestoreSession;
 
 /**
@@ -32,22 +33,19 @@ import org.trippi.impl.base.TriplestoreSession;
  * @author cwilper@cs.cornell.edu
  */
 public class SesameSession implements TriplestoreSession {
+    public static final Map<String, QueryLanguage> languageMap = new HashMap<String, QueryLanguage>();
+    static {
+    	for (QueryLanguage i: QueryLanguage.values()) {
+    		languageMap.put(i.getName().toLowerCase(), i);
+    	}
+    }
 
-    public static final String RDQL  = "rdql";
-    public static final String RQL   = "rql";
-    public static final String SERQL = "serql";
-    public static final String SPO   = "spo";
+    public static final String[] TUPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
+    public static final String[] TRIPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
 
-    /** serql, rdql, rql */
-    public static final String[] TUPLE_LANGUAGES = new String[] { SERQL, RDQL, RQL };
+    private static final Logger logger = Logger.getLogger(SesameSession.class.getName());
 
-    /** serql, spo */
-    public static final String[] TRIPLE_LANGUAGES = new String[] { SERQL, SPO };
-
-    private static final Logger logger =
-        Logger.getLogger(SesameSession.class.getName());
-
-    private SesameRepository m_repository;
+    private Repository m_repository;
     private AliasManager m_aliasManager;
 
     private GraphElementFactory m_factory;
@@ -65,7 +63,7 @@ public class SesameSession implements TriplestoreSession {
     /**
      * Construct a Sesame session.
      */
-    public SesameSession(SesameRepository repository,
+    public SesameSession(Repository repository,
                          AliasManager aliasManager) {
         m_repository = repository;
         m_aliasManager = aliasManager;
@@ -93,9 +91,9 @@ public class SesameSession implements TriplestoreSession {
                            boolean add) throws TrippiException {
         try {
             if (add) {
-                m_repository.addGraph(getSesameGraph(triples.iterator()));
+            	m_repository.getConnection().add(getSesameGraph(triples.iterator()));
             } else {
-                m_repository.removeGraph(getSesameGraph(triples.iterator()));
+                m_repository.getConnection().remove(getSesameGraph(triples.iterator()));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,8 +153,7 @@ public class SesameSession implements TriplestoreSession {
             }
         }
 
-        return findTriples(SERQL, 
-                           buf.toString());
+        return findTriples(QueryLanguage.SERQL.getName().toLowerCase(), buf.toString());
     }
 
     private String getString(String ifNull, Node rdfNode) {
@@ -166,7 +163,7 @@ public class SesameSession implements TriplestoreSession {
 
     public TripleIterator findTriples(String lang,
                                       String queryText) throws TrippiException {
-        if (lang.equalsIgnoreCase(SERQL)) {
+        if (QueryLanguage.SERQL.getName().equalsIgnoreCase(lang)) {
             // this is expected to be a SERQL CONSTRUCT query
             return new SesameTripleIterator(QueryLanguage.SERQL, 
                                             doAliasReplacements(queryText, true), 
@@ -178,32 +175,23 @@ public class SesameSession implements TriplestoreSession {
 
     public TupleIterator query(String queryText,
                                String language) throws TrippiException {
-        QueryLanguage lang;
-        if (language.equalsIgnoreCase(RDQL)) {
-            lang = QueryLanguage.RDQL;
-            queryText = doAliasReplacements(queryText, false);
-        } else if (language.equalsIgnoreCase(RQL)) {
-            lang = QueryLanguage.RQL;
-            queryText = doAliasReplacements(queryText, true);
-        } else if (language.equalsIgnoreCase(SERQL)) {
-            lang = QueryLanguage.SERQL;
-            queryText = doAliasReplacements(queryText, true);
-        } else {
-            throw new TrippiException("Unsupported tuple query language: " + language);
+        QueryLanguage lang = languageMap.get(language.toLowerCase());
+        if (lang == null) {
+            throw new TrippiException("Unsupported query language: " + language);
         }
+        
+        queryText = doAliasReplacements(queryText, lang == QueryLanguage.SERQL || lang == QueryLanguage.SPARQL);
+
         return new SesameTupleIterator(lang, queryText, m_repository);
     }
 
     public void close() throws TrippiException {
         if ( !m_closed ) {
-            if (m_repository instanceof LocalRepository) {
-                LocalRepository r = (LocalRepository) m_repository;
-                try {
-                    r.shutDown();
-                } catch (Exception e) {
-                    throw new TrippiException("Error shutting down LocalRepository", e);
-                }
-            }
+            try {
+				m_repository.shutDown();
+			} catch (RepositoryException e) {
+				throw new TrippiException("Exception in close().", e);
+			}
             m_closed = true;
             logger.info("Closed session.");
         }
