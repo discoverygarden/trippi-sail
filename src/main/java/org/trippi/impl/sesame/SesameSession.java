@@ -6,7 +6,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
 import org.jrdf.graph.BlankNode;
 import org.jrdf.graph.GraphElementFactory;
 import org.jrdf.graph.Literal;
@@ -45,8 +44,6 @@ public class SesameSession implements TriplestoreSession {
     public static final String[] TUPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
     public static final String[] TRIPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
 
-    private static final Logger logger = Logger.getLogger(SesameSession.class.getName());
-
     private Repository m_repository;
     private AliasManager m_aliasManager;
 
@@ -70,7 +67,6 @@ public class SesameSession implements TriplestoreSession {
         m_repository = repository;
         m_aliasManager = aliasManager;
         m_closed = false;
-        logger.info("Created session.");
     }
 
     public GraphElementFactory getElementFactory() {
@@ -129,9 +125,7 @@ public class SesameSession implements TriplestoreSession {
                          .replaceAll("\\^\\^" + alias + ":(\\S+)", "^^<" + fullForm + "$1>");
             }
         }
-        if (!q.equals(out)) {
-            logger.info("Substituted aliases, query is now: " + out);
-        }
+
         return out;
     }
 
@@ -193,7 +187,6 @@ public class SesameSession implements TriplestoreSession {
 				throw new TrippiException("Exception in close().", e);
 			}
             m_closed = true;
-            logger.info("Closed session.");
         }
     }
 

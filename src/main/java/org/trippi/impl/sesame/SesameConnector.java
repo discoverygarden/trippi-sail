@@ -2,14 +2,10 @@ package org.trippi.impl.sesame;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import org.jrdf.graph.GraphElementFactory;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.config.RepositoryConfig;
-import org.openrdf.repository.config.RepositoryConfigException;
-import org.openrdf.repository.config.RepositoryFactory;
-import org.openrdf.repository.config.RepositoryImplConfig;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.trippi.AliasManager;
@@ -37,6 +33,7 @@ public class SesameConnector extends TriplestoreConnector {
     private GraphElementFactory m_elementFactory;
     private TripleIteratorFactory iteratorFactory;
     private Map<String, String> config;
+    private Logger logger = Logger.getLogger(SesameConnector.class.getName());
 
     public SesameConnector() {
     }
@@ -54,13 +51,20 @@ public class SesameConnector extends TriplestoreConnector {
 
     @Override
     public TriplestoreReader getReader() {
-        // TODO: Get reader.
-    	return m_writer;
+        return getWriter();
     }
 
     @Override
     public TriplestoreWriter getWriter() {
-        return m_writer;
+    	if (m_writer == null) {
+    		try {
+    			open();
+    		}
+    		catch (TrippiException e) {
+                logger.warning(e.getMessage());
+    		}
+    	}
+    	return m_writer;
     }
 
     @Override
@@ -81,10 +85,14 @@ public class SesameConnector extends TriplestoreConnector {
 
 	@Override
 	public void open() throws TrippiException {
-		ApplicationContext context = new ClassPathXmlApplicationContext();
+		ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
+		logger.info("Bean defs:");
+		for (String i: context.getBeanDefinitionNames()) {
+			logger.info(i);
+		}
 		Map<String, String> config = getConfiguration();
 
-    	Repository repository = (Repository) context.getBean(Repository.class);
+    	Repository repository = (Repository) context.getBean("trippi-sail-repo");
 
         // TODO: Instantiate session with repository and populate element factory, reader and writer.
 		AliasManager aliasManager = new DefaultAliasManager();
@@ -117,14 +125,5 @@ public class SesameConnector extends TriplestoreConnector {
 	@Override
 	public void setTripleIteratorFactory(TripleIteratorFactory arg0) {
 		iteratorFactory = arg0;
-	}
-
-	private Repository repository;
-	public void setRepository(Repository repo) {
-		repository = repo;
-	}
-	
-	public Repository getRepository() {
-		return repository;
 	}
 }
