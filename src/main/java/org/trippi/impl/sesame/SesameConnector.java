@@ -92,7 +92,7 @@ public class SesameConnector extends TriplestoreConnector {
 		}
 		Map<String, String> config = getConfiguration();
 
-    	Repository repository = (Repository) context.getBean("trippi-sail-repo");
+    	Repository repository = context.getBean("trippiSailRepo", Repository.class);
 
         // TODO: Instantiate session with repository and populate element factory, reader and writer.
 		AliasManager aliasManager = new DefaultAliasManager();
