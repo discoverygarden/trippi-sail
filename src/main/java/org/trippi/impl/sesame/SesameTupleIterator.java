@@ -18,104 +18,112 @@ import org.trippi.RDFUtil;
 import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
 
-public class SesameTupleIterator 
-             extends TupleIterator {
+public class SesameTupleIterator extends TupleIterator {
 
-    private RDFUtil m_util;
-    
-    private TupleQueryResult result;
+	private RDFUtil m_util;
 
-    public SesameTupleIterator(QueryLanguage lang,
-                               String queryText,
-                               RepositoryConnection connection) throws TrippiException {
+	private TupleQueryResult result;
 
-        try { m_util = new RDFUtil(); } catch (Exception e) { } // won't happen
+	public SesameTupleIterator(QueryLanguage lang, String queryText,
+			RepositoryConnection connection) throws TrippiException {
+
+		try {
+			m_util = new RDFUtil();
+		} catch (Exception e) {
+		} // won't happen
 
 		try {
 			TupleQuery query = connection.prepareTupleQuery(lang, queryText);
 			result = query.evaluate();
 		} catch (Exception e) {
-			throw new TrippiException("Exception while running Tuple query: " + e.getMessage());
+			throw new TrippiException("Exception while running Tuple query: "
+					+ e.getMessage());
 		}
-    }
+	}
 
-    //////////////////////////////////////////////////////////////////////////
-    //////////////// TupleIterator ///////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////
+	// ////////////// TupleIterator ///////////////////////////////////////////
+	// ////////////////////////////////////////////////////////////////////////
 
-    /**
-     * Get the names of the binding variables.
-     *
-     * These will be the keys in the map for result.
-     */
-    public String[] names() throws TrippiException {
-        try {
+	/**
+	 * Get the names of the binding variables.
+	 *
+	 * These will be the keys in the map for result.
+	 */
+	@Override
+	public String[] names() throws TrippiException {
+		try {
 			return result.getBindingNames().toArray(new String[0]);
 		} catch (QueryEvaluationException e) {
 			throw new TrippiException("Exception in names().", e);
 		}
-    }
+	}
 
-    /**
-     * Return true if there are any more tuples.
-     */
-    public boolean hasNext() throws TrippiException {
-        try {
+	/**
+	 * Return true if there are any more tuples.
+	 */
+	@Override
+	public boolean hasNext() throws TrippiException {
+		try {
 			return result.hasNext();
 		} catch (Exception e) {
 			throw new TrippiException("Exception in hasNext().", e);
 		}
-    }
-    
-    /**
-     * Return the next tuple.
-     */
-    public Map<String, Node> next() throws TrippiException {
-    	Map<String, Node> to_return = new HashMap<String, Node>();
-    	try {
-			for (Binding i: result.next()) {
+	}
+
+	/**
+	 * Return the next tuple.
+	 */
+	@Override
+	public Map<String, Node> next() throws TrippiException {
+		Map<String, Node> to_return = new HashMap<String, Node>();
+		try {
+			for (Binding i : result.next()) {
 				to_return.put(i.getName(), objectNode(i.getValue()));
 			}
 		} catch (Exception e) {
 			throw new TrippiException("Exception in next().", e);
 		}
-        return to_return;
-    }
+		return to_return;
+	}
 
-    /**
-     * Release resources held by this iterator.
-     */
-    public void close() throws TrippiException {
-        try {
+	/**
+	 * Release resources held by this iterator.
+	 */
+	@Override
+	public void close() throws TrippiException {
+		try {
 			result.close();
 		} catch (Exception e) {
 			throw new TrippiException("Exception in close().", e);
 		}
-    }
+	}
 
-    private ObjectNode objectNode(org.openrdf.model.Value object)
-            throws GraphElementFactoryException,
-                   URISyntaxException {
-        if (object == null) return null;
-        if (object instanceof org.openrdf.model.URI) {
-            return m_util.createResource( new URI(((org.openrdf.model.URI) object).toString()) );
-        } else if (object instanceof  org.openrdf.model.Literal) {
-            org.openrdf.model.Literal lit = (org.openrdf.model.Literal) object;
-            org.openrdf.model.URI uri = lit.getDatatype();
-            String lang = lit.getLanguage();
-            if (uri != null) {
-                // typed 
-                return m_util.createLiteral(lit.getLabel(), new URI(uri.toString()));
-            } else if (lang != null && !lang.equals("")) {
-                // local
-                return m_util.createLiteral(lit.getLabel(), lang);
-            } else {
-                // plain
-                return m_util.createLiteral(lit.getLabel());
-            }
-        } else {
-            return m_util.createResource(((org.openrdf.model.BNode) object).getID().hashCode());
-        }
-    }
-
+	private ObjectNode objectNode(org.openrdf.model.Value object)
+			throws GraphElementFactoryException, URISyntaxException {
+		if (object == null)
+			return null;
+		if (object instanceof org.openrdf.model.URI) {
+			return m_util.createResource(new URI(
+					((org.openrdf.model.URI) object).toString()));
+		} else if (object instanceof org.openrdf.model.Literal) {
+			org.openrdf.model.Literal lit = (org.openrdf.model.Literal) object;
+			org.openrdf.model.URI uri = lit.getDatatype();
+			String lang = lit.getLanguage();
+			if (uri != null) {
+				// typed
+				return m_util.createLiteral(lit.getLabel(),
+						new URI(uri.toString()));
+			} else if (lang != null && !lang.equals("")) {
+				// local
+				return m_util.createLiteral(lit.getLabel(), lang);
+			} else {
+				// plain
+				return m_util.createLiteral(lit.getLabel());
+			}
+		} else {
+			return m_util.createResource(((org.openrdf.model.BNode) object)
+					.getID().hashCode());
+		}
+	}
 }
