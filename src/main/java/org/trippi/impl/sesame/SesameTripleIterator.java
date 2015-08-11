@@ -14,7 +14,7 @@ import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
-import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.trippi.RDFUtil;
 import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
@@ -26,16 +26,16 @@ public class SesameTripleIterator extends TripleIterator {
     
     public SesameTripleIterator(QueryLanguage lang,
                                 String queryText,
-                                Repository repository) throws TrippiException {
+                                RepositoryConnection connection) throws TrippiException {
 
         try { m_util = new RDFUtil(); } catch (Exception e) { } // won't happen
 
         try {
-        	GraphQuery query = repository.getConnection().prepareGraphQuery(lang, queryText);
+        	GraphQuery query = connection.prepareGraphQuery(lang, queryText);
         	result = query.evaluate();
         }
         catch (Exception e) {
-        	throw new TrippiException("Exception in Triple query.", e);
+        	throw new TrippiException("Exception in Triple query: " + e.getMessage());
         }
     }
 

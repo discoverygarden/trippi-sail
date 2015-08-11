@@ -2,7 +2,6 @@ package org.trippi.impl.sesame;
 
 import java.net.URI;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -15,10 +14,12 @@ import org.jrdf.graph.PredicateNode;
 import org.jrdf.graph.SubjectNode;
 import org.jrdf.graph.Triple;
 import org.jrdf.graph.URIReference;
+import org.openrdf.model.Resource;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.trippi.Alias;
 import org.trippi.RDFUtil;
@@ -26,6 +27,7 @@ import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
 import org.trippi.AliasManager;
+import org.trippi.impl.base.DefaultAliasManager;
 import org.trippi.impl.base.TriplestoreSession;
 
 /**
@@ -41,10 +43,11 @@ public class SesameSession implements TriplestoreSession {
     	}
     }
 
-    public static final String[] TUPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
-    public static final String[] TRIPLE_LANGUAGES = (String[]) languageMap.keySet().toArray();
+    public static final String[] TUPLE_LANGUAGES = languageMap.keySet().toArray(new String[0]);
+    public static final String[] TRIPLE_LANGUAGES = languageMap.keySet().toArray(new String[0]);
 
     private Repository m_repository;
+    private RepositoryConnection connection;
     private AliasManager m_aliasManager;
 
     private GraphElementFactory m_factory;
@@ -59,12 +62,22 @@ public class SesameSession implements TriplestoreSession {
         return TRIPLE_LANGUAGES;
     }
 
+    public SesameSession(Repository repository) {
+    	this(repository, new DefaultAliasManager());
+    }
+    
     /**
      * Construct a Sesame session.
      */
     public SesameSession(Repository repository,
                          AliasManager aliasManager) {
         m_repository = repository;
+        try {
+			connection = repository.getConnection();
+		} catch (RepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
         m_aliasManager = aliasManager;
         m_closed = false;
     }
@@ -76,6 +89,9 @@ public class SesameSession implements TriplestoreSession {
         return m_factory;
     }
 
+    public AliasManager getAliasManager() {
+    	return m_aliasManager;
+    }
 
     public void add(Set<Triple> triples) throws TrippiException {
         doTriples(triples, true);
@@ -87,11 +103,13 @@ public class SesameSession implements TriplestoreSession {
 
     private void doTriples(Set<Triple> triples, 
                            boolean add) throws TrippiException {
-        try {
+        try { 
+            ValueFactory valueFactory = new ValueFactoryImpl();
+            Resource graph = valueFactory.createURI("http://localhost/ri");
             if (add) {
-            	m_repository.getConnection().add(getSesameGraph(triples.iterator()));
+            	connection.add(getSesameGraph(triples, valueFactory), graph);
             } else {
-                m_repository.getConnection().remove(getSesameGraph(triples.iterator()));
+                connection.remove(getSesameGraph(triples, valueFactory), graph);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -155,16 +173,18 @@ public class SesameSession implements TriplestoreSession {
         return RDFUtil.toString(rdfNode);
     }
 
-    public TripleIterator findTriples(String lang,
+    public TripleIterator findTriples(String language,
                                       String queryText) throws TrippiException {
-        if (QueryLanguage.SERQL.getName().equalsIgnoreCase(lang)) {
-            // this is expected to be a SERQL CONSTRUCT query
-            return new SesameTripleIterator(QueryLanguage.SERQL, 
-                                            doAliasReplacements(queryText, true), 
-                                            m_repository);
-        } else {
-            throw new TrippiException("Unsupported triple query language: " + lang);
+    	QueryLanguage lang = languageMap.get(language.toLowerCase());
+    	
+        if (lang == null) {
+            throw new TrippiException("Unsupported query language: " + language);
         }
+        
+        return new SesameTripleIterator(
+        		lang, 
+        		doAliasReplacements(queryText, lang == QueryLanguage.SERQL), 
+        		connection);
     }
 
     public TupleIterator query(String queryText,
@@ -174,14 +194,15 @@ public class SesameSession implements TriplestoreSession {
             throw new TrippiException("Unsupported query language: " + language);
         }
         
-        queryText = doAliasReplacements(queryText, lang == QueryLanguage.SERQL || lang == QueryLanguage.SPARQL);
+        queryText = doAliasReplacements(queryText, lang == QueryLanguage.SERQL);
 
-        return new SesameTupleIterator(lang, queryText, m_repository);
+        return new SesameTupleIterator(lang, queryText, connection);
     }
 
     public void close() throws TrippiException {
         if ( !m_closed ) {
             try {
+            	connection.close();
 				m_repository.shutDown();
 			} catch (RepositoryException e) {
 				throw new TrippiException("Exception in close().", e);
@@ -201,12 +222,10 @@ public class SesameSession implements TriplestoreSession {
     //////// Utility methods for converting JRDF types to Sesame types ///////
     //////////////////////////////////////////////////////////////////////////
 
-	public static org.openrdf.model.Graph getSesameGraph(Iterator<Triple> jrdfTriples) {
+	public static org.openrdf.model.Graph getSesameGraph(Iterable<Triple> jrdfTriples, ValueFactory valueFactory) {
         org.openrdf.model.Graph graph = new org.openrdf.model.impl.TreeModel();
-        ValueFactory valueFactory = new ValueFactoryImpl();
 
-        while (jrdfTriples.hasNext()) {
-            Triple triple = jrdfTriples.next();
+        for (Triple triple: jrdfTriples) {
             graph.add(getSesameStatement(triple, valueFactory));
         }
         return graph;

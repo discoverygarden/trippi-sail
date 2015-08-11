@@ -13,7 +13,7 @@ import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.trippi.RDFUtil;
 import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
@@ -27,15 +27,15 @@ public class SesameTupleIterator
 
     public SesameTupleIterator(QueryLanguage lang,
                                String queryText,
-                               Repository repository) throws TrippiException {
+                               RepositoryConnection connection) throws TrippiException {
 
         try { m_util = new RDFUtil(); } catch (Exception e) { } // won't happen
 
 		try {
-			TupleQuery query = repository.getConnection().prepareTupleQuery(lang, queryText);
+			TupleQuery query = connection.prepareTupleQuery(lang, queryText);
 			result = query.evaluate();
 		} catch (Exception e) {
-			throw new TrippiException("Exception while running query.", e);
+			throw new TrippiException("Exception while running Tuple query: " + e.getMessage());
 		}
     }
 
@@ -50,7 +50,7 @@ public class SesameTupleIterator
      */
     public String[] names() throws TrippiException {
         try {
-			return (String[]) result.getBindingNames().toArray();
+			return result.getBindingNames().toArray(new String[0]);
 		} catch (QueryEvaluationException e) {
 			throw new TrippiException("Exception in names().", e);
 		}

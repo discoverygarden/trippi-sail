@@ -76,6 +76,7 @@ public class SesameConnector extends TriplestoreConnector {
     public void close() throws TrippiException {
     	m_elementFactory = null;
         m_writer.close();
+        m_writer = null;
     }
 
 	@Override
@@ -86,19 +87,14 @@ public class SesameConnector extends TriplestoreConnector {
 	@Override
 	public void open() throws TrippiException {
 		ApplicationContext context = new ClassPathXmlApplicationContext("beans.xml");
-		logger.info("Bean defs:");
-		for (String i: context.getBeanDefinitionNames()) {
-			logger.info(i);
-		}
 		Map<String, String> config = getConfiguration();
 
     	Repository repository = context.getBean("trippiSailRepo", Repository.class);
 
         // TODO: Instantiate session with repository and populate element factory, reader and writer.
-		AliasManager aliasManager = new DefaultAliasManager();
-    	SesameSession session = new SesameSession(repository, aliasManager);
+    	SesameSession session = new SesameSession(repository);
     	m_elementFactory = session.getElementFactory();
-    	TriplestoreSessionPool sessionPoll = new SingleSessionPool(
+    	TriplestoreSessionPool sessionPool = new SingleSessionPool(
     			session,
     			session.listTupleLanguages(),
     			session.listTripleLanguages());
@@ -110,8 +106,8 @@ public class SesameConnector extends TriplestoreConnector {
     	}
     	try {
 			m_writer = new ConcurrentTriplestoreWriter(
-					sessionPoll,
-					aliasManager,
+					sessionPool,
+					session.getAliasManager(),
 					session,
 					updateBuffer,
 					iteratorFactory,
