@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+	<bean id="remoteRepoFactory" class="com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager">
+		<constructor-arg type="java.lang.String" value="http://localhost:8080/bigdata"/>
+		<constructor-arg type="boolean" value="false"/>
+	</bean>
+	
+	<bean id="remoteRepo"
+		factory-bean="remoteRepoFactory"
+		factory-method="getRepositoryForDefaultNamespace"/>
+	
+	<bean 	id="trippiSailRepo"
+			class="com.bigdata.rdf.sail.remote.BigdataSailRemoteRepository">
+		<constructor-arg ref="remoteRepo"/>
+	</bean>
+
+</beans>
