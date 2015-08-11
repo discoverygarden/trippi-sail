@@ -2,13 +2,22 @@ package org.trippi.impl.sesame;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jrdf.graph.GraphElementFactoryException;
 import org.jrdf.graph.Node;
 import org.jrdf.graph.ObjectNode;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
+import org.openrdf.query.BindingSet;
+import org.openrdf.query.BooleanQuery;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
@@ -32,12 +41,23 @@ public class SesameTupleIterator extends TupleIterator {
 		} catch (Exception e) {
 		} // won't happen
 
-		try {
-			TupleQuery query = connection.prepareTupleQuery(lang, queryText);
-			result = query.evaluate();
-		} catch (Exception e) {
-			throw new TrippiException("Exception while running Tuple query: "
-					+ e.getMessage());
+		if (queryText.toLowerCase().trim().startsWith("ask")) {
+			try {
+				BooleanQuery query = connection.prepareBooleanQuery(lang, queryText);
+				result = new BooleanTupleResult(query.evaluate());
+			}
+			catch (Exception e) {
+				throw new TrippiException("Exception while running ASK query: " + e.getMessage());
+			}
+		}
+		else {
+			try {
+				TupleQuery query = connection.prepareTupleQuery(lang, queryText);
+				result = query.evaluate();
+			} catch (Exception e) {
+				throw new TrippiException("Exception while running Tuple (SELECT) query: "
+						+ e.getMessage());
+			}
 		}
 	}
 
@@ -125,5 +145,106 @@ public class SesameTupleIterator extends TupleIterator {
 			return m_util.createResource(((org.openrdf.model.BNode) object)
 					.getID().hashCode());
 		}
+	}
+	
+	private class BooleanBindingSet implements BindingSet {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private Map<String, Binding> map;
+
+		public BooleanBindingSet(final boolean result) {
+			map = new HashMap<String, Binding>();
+			Binding binding = new Binding() {
+				
+				/**
+				 * 
+				 */
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public Value getValue() {
+					ValueFactory vf = new ValueFactoryImpl();
+					return vf.createLiteral(result);
+				}
+				
+				@Override
+				public String getName() {
+					return "k0";
+				}
+			};
+			map.put(binding.getName(), binding);
+		}
+		@Override
+		public Binding getBinding(String arg0) {
+			return map.get(arg0);
+		}
+
+		@Override
+		public Set<String> getBindingNames() {
+			return map.keySet();
+		}
+
+		@Override
+		public Value getValue(String arg0) {
+			return getBinding(arg0).getValue();
+		}
+
+		@Override
+		public boolean hasBinding(String arg0) {
+			return map.containsKey(arg0);
+		}
+
+		@Override
+		public Iterator<Binding> iterator() {
+			return map.values().iterator();
+		}
+
+		@Override
+		public int size() {
+			return map.size();
+		}
+		
+	}
+	
+	private class BooleanTupleResult implements TupleQueryResult {
+		private boolean served = false;
+		private BooleanBindingSet result;
+		
+		public BooleanTupleResult(boolean result) {
+			this.result = new BooleanBindingSet(result);
+		}
+
+		@Override
+		public void close() throws QueryEvaluationException {
+			// No-op.
+		}
+
+		@Override
+		public boolean hasNext() throws QueryEvaluationException {
+			return !served;
+		}
+
+		@Override
+		public BindingSet next() throws QueryEvaluationException {
+			if (!served) {
+				served = true;
+				return result;
+			}
+			throw new QueryEvaluationException("No more values.");
+		}
+
+		@Override
+		public void remove() throws QueryEvaluationException {
+			throw new QueryEvaluationException("Unsupported operation.");
+		}
+
+		@Override
+		public List<String> getBindingNames() throws QueryEvaluationException {
+			return new ArrayList<String>(result.getBindingNames());
+		}
+		
+		
 	}
 }
