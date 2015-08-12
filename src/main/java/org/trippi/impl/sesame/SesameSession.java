@@ -66,22 +66,21 @@ public class SesameSession implements TriplestoreSession {
 		return TRIPLE_LANGUAGES;
 	}
 
-	public SesameSession(Repository repository) {
-		this(repository, new DefaultAliasManager());
+	private String modelUri;
+	
+	public SesameSession(Repository repository, String modelUri) throws RepositoryException {
+		this(repository, new DefaultAliasManager(), modelUri);
 	}
 
 	/**
 	 * Construct a Sesame session.
+	 * @throws RepositoryException 
 	 */
-	public SesameSession(Repository repository, AliasManager aliasManager) {
+	public SesameSession(Repository repository, AliasManager aliasManager, String modelUri) throws RepositoryException {
 		m_repository = repository;
-		try {
-			connection = repository.getConnection();
-		} catch (RepositoryException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		connection = repository.getConnection();
 		m_aliasManager = aliasManager;
+		this.modelUri = modelUri;
 		m_closed = false;
 	}
 
@@ -110,11 +109,11 @@ public class SesameSession implements TriplestoreSession {
 			throws TrippiException {
 		try {
 			ValueFactory valueFactory = new ValueFactoryImpl();
-			Resource graph = valueFactory.createURI("http://localhost/ri");
+			Resource model = valueFactory.createURI(modelUri);
 			if (add) {
-				connection.add(getSesameGraph(triples, valueFactory), graph);
+				connection.add(getSesameGraph(triples, valueFactory, model));
 			} else {
-				connection.remove(getSesameGraph(triples, valueFactory), graph);
+				connection.remove(getSesameGraph(triples, valueFactory, model));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -127,57 +126,55 @@ public class SesameSession implements TriplestoreSession {
 			throw new TrippiException(msg, e);
 		}
 	}
+	
+	/**
+	 * 
+	 * @see org.trippi.impl.mulgara.MulgaraSession.doAliasReplacements()
+	 * @param q
+	 * @return
+	 */
+	private String doAliasReplacements(String q) {
+		String out = q;
+		for (Alias alias: getAliasManager().getAliases().values()) {
+			out = alias.replaceSparqlType(alias.replaceSparqlUri(out));
+		}
+		// base model URI includes separator
+		// relative URIs introduce a library dependency on Jena, so keeping m_serverURI for now 
+		out = Alias.replaceRelativeUris(out, modelUri); 
+
+		return out;
+	}
 
 	private String doAliasReplacements(String q, boolean noBrackets) {
 		String out = q;
-		Map<String, Alias> m = m_aliasManager.getAliases();
-		for (String alias : m.keySet()) {
-			String fullForm = m.get(alias).getExpansion();
-			if (noBrackets) {
-				// In serql and rql, aliases are not surrounded by < and >
+
+		if (noBrackets) {
+			for (Alias alias: getAliasManager().getAliases().values()) {
+				// In serql, aliases are not surrounded by < and >
 				// If bob is an alias for http://example.org/robert/,
 				// this turns bob:fun into <http://example.org/robert/fun>,
 				// {bob:fun} into {<http://example.org/robert/fun>},
 				// and "10"^^xsd:int into
 				// "10"^^<http://www.w3.org/2001/XMLSchema#int>
-				out = out.replaceAll("([\\s{\\^])" + alias + ":([^\\s}]+)",
-						"$1<" + fullForm + "$2>");
-			} else {
-				// In other query languages, aliases are surrounded by < and >
-				// If bob is an alias for http://example.org/robert/,
-				// this turns <bob:fun> into <http://example.org/robert/fun>
-				// and "10"^^xsd:int into
-				// "10"^^<http://www.w3.org/2001/XMLSchema#int>
-				out = out.replaceAll("<" + alias + ":", "<" + fullForm)
-						.replaceAll("\\^\\^" + alias + ":(\\S+)",
-								"^^<" + fullForm + "$1>");
+				out = out.replaceAll("([\\s{\\^])" + alias.getKey() + ":([^\\s}]+)",
+						"$1<" + alias.getExpansion() + "$2>");
 			}
+		}
+		else {
+			out = doAliasReplacements(q);
 		}
 
 		return out;
 	}
 
 	@Override
-	public TripleIterator findTriples(SubjectNode subject,
-			PredicateNode predicate, ObjectNode object) throws TrippiException {
-		// convert the pattern to a SERQL CONSTRUCT query and run that
-		StringBuffer buf = new StringBuffer();
-		buf.append("CONSTRUCT * FROM {S} " + getString("P", predicate) + " {O}");
+	public TripleIterator findTriples(SubjectNode subject, PredicateNode predicate, ObjectNode object) throws TrippiException {
+		final String query = String.format("CONSTRUCT WHERE {%s %s %s}",
+				getString("?s", subject),
+				getString("?p", predicate),
+				getString("?o", object));
 
-		if (subject != null || object != null) {
-			buf.append(" WHERE ");
-			if (subject != null) {
-				buf.append("S = " + getString(null, subject));
-				if (object != null)
-					buf.append(" AND ");
-			}
-			if (object != null) {
-				buf.append("O = " + getString(null, object));
-			}
-		}
-
-		return findTriples(QueryLanguage.SERQL.getName().toLowerCase(),
-				buf.toString());
+		return findTriples(QueryLanguage.SPARQL.getName(), query);
 	}
 
 	private String getString(String ifNull, Node rdfNode) {
@@ -187,21 +184,18 @@ public class SesameSession implements TriplestoreSession {
 	}
 
 	@Override
-	public TripleIterator findTriples(String language, String queryText)
-			throws TrippiException {
+	public TripleIterator findTriples(String language, String queryText) throws TrippiException {
 		QueryLanguage lang = languageMap.get(language.toLowerCase());
 
 		if (lang == null) {
 			throw new TrippiException("Unsupported query language: " + language);
 		}
 
-		return new SesameTripleIterator(lang, doAliasReplacements(queryText,
-				lang == QueryLanguage.SERQL), connection);
+		return new SesameTripleIterator(lang, doAliasReplacements(queryText, lang == QueryLanguage.SERQL), connection);
 	}
 
 	@Override
-	public TupleIterator query(String queryText, String language)
-			throws TrippiException {
+	public TupleIterator query(String queryText, String language) throws TrippiException {
 		QueryLanguage lang = languageMap.get(language.toLowerCase());
 		if (lang == null) {
 			throw new TrippiException("Unsupported query language: " + language);
@@ -238,21 +232,22 @@ public class SesameSession implements TriplestoreSession {
 	// ////////////////////////////////////////////////////////////////////////
 
 	public static org.openrdf.model.Graph getSesameGraph(
-			Iterable<Triple> jrdfTriples, ValueFactory valueFactory) {
+			Iterable<Triple> jrdfTriples, ValueFactory valueFactory, Resource model) {
 		org.openrdf.model.Graph graph = new org.openrdf.model.impl.TreeModel();
 
 		for (Triple triple : jrdfTriples) {
-			graph.add(getSesameStatement(triple, valueFactory));
+			graph.add(getSesameStatement(triple, valueFactory, model));
 		}
 		return graph;
 	}
 
 	public static org.openrdf.model.Statement getSesameStatement(Triple triple,
-			ValueFactory valueFactory) {
-		return new org.openrdf.model.impl.StatementImpl(getSesameResource(
-				triple.getSubject(), valueFactory), getSesameURI(
-				(URIReference) triple.getPredicate(), valueFactory),
-				getSesameValue(triple.getObject(), valueFactory));
+			ValueFactory valueFactory, Resource model) {
+		return valueFactory.createStatement(
+				getSesameResource(triple.getSubject(), valueFactory),
+				getSesameURI((URIReference) triple.getPredicate(), valueFactory),
+				getSesameValue(triple.getObject(), valueFactory),
+				model);
 	}
 
 	public static org.openrdf.model.Resource getSesameResource(

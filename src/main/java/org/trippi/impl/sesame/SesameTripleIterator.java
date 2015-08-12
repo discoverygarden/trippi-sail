@@ -36,8 +36,7 @@ public class SesameTripleIterator extends TripleIterator {
 			GraphQuery query = connection.prepareGraphQuery(lang, queryText);
 			result = query.evaluate();
 		} catch (Exception e) {
-			throw new TrippiException("Exception in Triple query: "
-					+ e.getMessage());
+			throw new TrippiException("Exception in Triple query: " + e.getMessage());
 		}
 	}
 

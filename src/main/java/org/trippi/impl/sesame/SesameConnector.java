@@ -2,12 +2,15 @@ package org.trippi.impl.sesame;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import org.jrdf.graph.GraphElementFactory;
 import org.openrdf.repository.Repository;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.openrdf.repository.RepositoryException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
 import org.trippi.TriplestoreConnector;
 import org.trippi.TriplestoreReader;
 import org.trippi.TriplestoreWriter;
@@ -26,13 +29,27 @@ import org.trippi.io.TripleIteratorFactory;
  *
  * @author cwilper@cs.cornell.edu
  */
+@Component
+@Configurable
 public class SesameConnector extends TriplestoreConnector {
 	private TriplestoreWriter m_writer;
 	private GraphElementFactory m_elementFactory;
+	
+	@Autowired(required=false)
 	private TripleIteratorFactory iteratorFactory;
-	private Map<String, String> config;
-	private Logger logger = Logger.getLogger(SesameConnector.class.getName());
-
+	
+	@Autowired(required=false)
+	private Map<String, String> configuration;
+	private Logger logger = LoggerFactory.getLogger(SesameConnector.class.getName());
+    private boolean closed = true;
+    
+    @Autowired(required=true)
+    private Repository repository;
+    
+    public void setRepository(final Repository repo) {
+    	repository = repo;
+    }
+	
 	public SesameConnector() {
 	}
 
@@ -45,7 +62,7 @@ public class SesameConnector extends TriplestoreConnector {
 	@Override
 	public void setConfiguration(Map<String, String> config)
 			throws TrippiException {
-		this.config = config;
+		configuration = config;
 	}
 
 	@Override
@@ -59,7 +76,7 @@ public class SesameConnector extends TriplestoreConnector {
 			try {
 				open();
 			} catch (TrippiException e) {
-				logger.warning(e.getMessage());
+				logger.warn(e.getMessage());
 			}
 		}
 		return m_writer;
@@ -72,50 +89,80 @@ public class SesameConnector extends TriplestoreConnector {
 
 	@Override
 	public void close() throws TrippiException {
-		m_elementFactory = null;
-		m_writer.close();
-		m_writer = null;
+		if (!closed) {
+			closed = true;
+			
+			try {
+				m_writer.flushBuffer();
+			} catch (IOException e) {
+				e.printStackTrace();
+				throw new TrippiException(e.getMessage());
+			}
+			m_writer.close();
+			iteratorFactory.shutdown();
+		}
 	}
 
 	@Override
 	public Map<String, String> getConfiguration() {
-		return config;
+		return configuration;
 	}
 
 	@Override
 	public void open() throws TrippiException {
-		ApplicationContext context = new ClassPathXmlApplicationContext(
-				"beans.xml");
-		Map<String, String> config = getConfiguration();
-
-		Repository repository = context.getBean("trippiSailRepo",
-				Repository.class);
-
-		// TODO: Instantiate session with repository and populate element
-		// factory, reader and writer.
-		SesameSession session = new SesameSession(repository);
-		m_elementFactory = session.getElementFactory();
-		TriplestoreSessionPool sessionPool = new SingleSessionPool(session,
-				session.listTupleLanguages(), session.listTripleLanguages());
-		UpdateBuffer updateBuffer = new MemUpdateBuffer(
-				ConfigUtils.getRequiredInt(config, "bufferSafeCapacity"),
-				ConfigUtils.getRequiredInt(config, "bufferFlushBatchSize"));
-		if (iteratorFactory == null) {
-			iteratorFactory = TripleIteratorFactory.defaultInstance();
-		}
-		try {
-			m_writer = new ConcurrentTriplestoreWriter(sessionPool,
-					session.getAliasManager(), session, updateBuffer,
-					iteratorFactory, ConfigUtils.getRequiredInt(config,
-							"autoFlushBufferSize"), ConfigUtils.getRequiredInt(
-							config, "autoFlushDormantSeconds"));
-		} catch (IOException e) {
-			throw new TrippiException("Exception when opening connection.", e);
+		if (closed) {
+			closed = false;
+			
+			if (!repository.isInitialized()) {
+				try {
+					repository.initialize();
+				} catch (RepositoryException e) {
+					throw new TrippiException("Failed to initialize repository: " + e.getMessage());
+				}
+			}
+		
+			Map<String, String> config = getConfiguration();
+	
+			// Instantiate session with repository and populate element
+			// factory, reader and writer.
+			SesameSession session;
+			try {
+				session = new SesameSession(repository,
+						ConfigUtils.getRequired(config, "fullUri"));
+			} catch (RepositoryException e1) {
+				e1.printStackTrace();
+				throw new TrippiException(e1.getMessage());
+			}
+			m_elementFactory = session.getElementFactory();
+			TriplestoreSessionPool sessionPool = new SingleSessionPool(
+					session,
+					session.listTupleLanguages(),
+					session.listTripleLanguages());
+			UpdateBuffer updateBuffer = new MemUpdateBuffer(
+					ConfigUtils.getRequiredInt(config, "bufferSafeCapacity"),
+					ConfigUtils.getRequiredInt(config, "bufferFlushBatchSize"));
+			if (iteratorFactory == null) {
+				iteratorFactory = TripleIteratorFactory.defaultInstance();
+			}
+			try {
+				m_writer = new ConcurrentTriplestoreWriter(sessionPool,
+						session.getAliasManager(), session, updateBuffer,
+						iteratorFactory, ConfigUtils.getRequiredInt(config,
+								"autoFlushBufferSize"), ConfigUtils.getRequiredInt(
+								config, "autoFlushDormantSeconds"));
+			} catch (IOException e) {
+				throw new TrippiException("Exception when opening connection.", e);
+			}
 		}
 	}
 
 	@Override
 	public void setTripleIteratorFactory(TripleIteratorFactory arg0) {
 		iteratorFactory = arg0;
+	}
+	
+	@Override
+	public void finalize() throws TrippiException {
+		close();
 	}
 }
