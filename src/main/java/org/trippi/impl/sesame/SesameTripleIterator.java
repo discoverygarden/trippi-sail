@@ -10,11 +10,14 @@ import org.jrdf.graph.PredicateNode;
 import org.jrdf.graph.SubjectNode;
 import org.jrdf.graph.Triple;
 import org.openrdf.model.Statement;
+import org.openrdf.query.Dataset;
 import org.openrdf.query.GraphQuery;
 import org.openrdf.query.GraphQueryResult;
+import org.openrdf.query.MalformedQueryException;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.RepositoryException;
 import org.trippi.RDFUtil;
 import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
@@ -25,18 +28,19 @@ public class SesameTripleIterator extends TripleIterator {
 	private GraphQueryResult result;
 
 	public SesameTripleIterator(QueryLanguage lang, String queryText,
-			RepositoryConnection connection) throws TrippiException {
-
+			RepositoryConnection connection, Dataset dataset) throws TrippiException, RepositoryException, MalformedQueryException {
+			this(connection.prepareGraphQuery(lang, queryText), dataset);
+	}
+	
+	public SesameTripleIterator(GraphQuery query, Dataset dataset) throws TrippiException {
+		m_util = new RDFUtil();
+		
 		try {
-			m_util = new RDFUtil();
-		} catch (Exception e) {
-		} // won't happen
-
-		try {
-			GraphQuery query = connection.prepareGraphQuery(lang, queryText);
+			query.setDataset(dataset);
 			result = query.evaluate();
-		} catch (Exception e) {
-			throw new TrippiException("Exception in Triple query: " + e.getMessage());
+		}
+		catch (QueryEvaluationException e) {
+			throw new TrippiException("Exception when running query: " + e.getMessage());
 		}
 	}
 

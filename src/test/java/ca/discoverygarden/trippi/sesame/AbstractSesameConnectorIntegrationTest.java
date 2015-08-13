@@ -8,6 +8,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jrdf.graph.GraphElementFactory;
 import org.jrdf.graph.GraphElementFactoryException;
 import org.jrdf.graph.Triple;
 import org.junit.Before;
@@ -27,13 +28,12 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 	protected SesameConnector connector;
 	protected TriplestoreWriter writer;
 	protected List<Triple> triples;
-	protected RDFUtil geFactory;
+	protected GraphElementFactory geFactory;
 	
 	@Before
 	public void setUp() throws TrippiException, GraphElementFactoryException, URISyntaxException {
 		writer = connector.getWriter();
-		
-		geFactory = new RDFUtil();
+		geFactory = connector.getElementFactory();
 		
 		triples = new ArrayList<Triple>();
 		triples.add(geFactory.createTriple(
@@ -54,9 +54,14 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 		for (Triple i: triples) {
 			assertTrue("Added.", getPresentCount(i) > 0);
 		}
+		testGraphRewrite();
 		writer.delete(triples, true);
 		for (Triple i: triples) {
 			assertTrue("Deleted.", getPresentCount(i) == 0);
 		}
+	}
+	
+	protected void testGraphRewrite() throws TrippiException {
+		assertTrue(writer.findTuples("sparql", "SELECT * FROM <#ri> WHERE { ?s <has://that> ?o }", 100, true).count() > 0);
 	}
 }

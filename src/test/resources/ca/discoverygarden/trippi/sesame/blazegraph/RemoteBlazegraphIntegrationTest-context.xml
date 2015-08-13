@@ -5,25 +5,35 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 	
-	<context:component-scan base-package="ca.discoverygarden.trippi.sesame"/>
-	<context:property-placeholder/>
+	<context:property-placeholder ignore-unresolvable="true"/>
+	
+	<bean id="remoteRepoFactory" scope="prototype"
+		class="com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager">
+		<constructor-arg type="java.lang.String" value="${remoteBlazegraph}"/>
+		<constructor-arg type="boolean" value="false"/>
+	</bean>
+	
+	<bean id="remoteRepo" scope="prototype"
+		factory-bean="remoteRepoFactory"
+		factory-method="getRepositoryForDefaultNamespace"/>
 	
 	<bean id="trippiSailRepository" scope="prototype"
-		class="com.bigdata.rdf.sail.BigdataSailRepository"
-		destroy-method="shutDown">
-		<constructor-arg ref="blazegraphSail"/>
-	</bean>
+			factory-bean="remoteRepo"
+			factory-method="getBigdataSailRemoteRepository"
+			init-method="initialize"
+			destroy-method="shutDown"/>
 			
 	<bean class="org.trippi.impl.sesame.SesameConnector" scope="prototype"
 			init-method="open"
-			destroy-method="close">
+			destroy-method="close">	
 		<property name="tripleIteratorFactory">
-			<bean class="org.trippi.io.TripleIteratorFactory" scope="prototype"/>
+			<bean class="org.trippi.io.TripleIteratorFactory"/>
 		</property>
 		<property name="repository" ref="trippiSailRepository"/>
 		<property name="configuration">
 			<map key-type="java.lang.String" value-type="java.lang.String">
-				<entry key="fullUri" value="test://model#ri">
+				<entry key="model" value="ri"/>
+				<entry key="serverUri" value="test://model#">
 					<description>
 						The graph/model to manage in the given repository.
 					</description>

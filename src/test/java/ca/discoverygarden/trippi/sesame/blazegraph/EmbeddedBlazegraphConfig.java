@@ -16,8 +16,9 @@ public class EmbeddedBlazegraphConfig {
 	@Scope("prototype")
 	public BigdataSail blazegraphSail() throws IOException {
 		File tempfile = File.createTempFile("bigdata", ".jnl");
+		tempfile.deleteOnExit();
 		Properties prop = new Properties();
-		prop.put("com.bigdata.journal.AbstractJournal.bufferMode", "DiskRW");
+		prop.load(this.getClass().getResourceAsStream("quads.properties"));
 		prop.put("com.bigdata.journal.AbstractJournal.file", tempfile.getAbsolutePath());
 		return new BigdataSail(prop);
 	}

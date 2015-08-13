@@ -18,6 +18,7 @@ import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.query.Binding;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.BooleanQuery;
+import org.openrdf.query.Dataset;
 import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.TupleQuery;
@@ -34,7 +35,7 @@ public class SesameTupleIterator extends TupleIterator {
 	private TupleQueryResult result;
 
 	public SesameTupleIterator(QueryLanguage lang, String queryText,
-			RepositoryConnection connection) throws TrippiException {
+			RepositoryConnection connection, Dataset dataset) throws TrippiException {
 
 		try {
 			m_util = new RDFUtil();
@@ -44,19 +45,21 @@ public class SesameTupleIterator extends TupleIterator {
 		if (queryText.toLowerCase().trim().startsWith("ask")) {
 			try {
 				BooleanQuery query = connection.prepareBooleanQuery(lang, queryText);
+				query.setDataset(dataset);
 				result = new BooleanTupleResult(query.evaluate());
 			}
 			catch (Exception e) {
-				throw new TrippiException("Exception while running ASK query: " + e.getMessage());
+				throw new TrippiException("Exception while running ASK query: " + e.getMessage(), e);
 			}
 		}
 		else {
 			try {
 				TupleQuery query = connection.prepareTupleQuery(lang, queryText);
+				query.setDataset(dataset);
 				result = query.evaluate();
 			} catch (Exception e) {
 				throw new TrippiException("Exception while running Tuple (SELECT) query: "
-						+ e.getMessage());
+						+ e.getMessage(), e);
 			}
 		}
 	}
