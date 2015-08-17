@@ -5,59 +5,19 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 	
-	<bean id="trippiSailRepository" scope="prototype"
+	<import resource="classpath:org/trippi/impl/sesame/base-context.xml"/>
+	
+	<bean id="trippiSailRepository"
 		class="org.openrdf.repository.sail.SailRepository"
 		destroy-method="shutDown">
 		<constructor-arg>
-			<bean class="org.openrdf.sail.memory.MemoryStore" scope="prototype"/>
+			<bean class="org.openrdf.sail.memory.MemoryStore"/>
 		</constructor-arg>
 	</bean>
 			
-	<bean class="org.trippi.impl.sesame.SesameConnector" scope="prototype"
-			init-method="open"
-			destroy-method="close">
-		<property name="tripleIteratorFactory">
-			<bean class="org.trippi.io.TripleIteratorFactory"/>
-		</property>
-		<property name="repository" ref="trippiSailRepository"/>
-		<property name="configuration">
-			<map key-type="java.lang.String" value-type="java.lang.String">
-				<entry key="model" value="ri"/>
-				<entry key="serverUri" value="test://model#">
-					<description>
-						The graph/model to manage in the given repository.
-					</description>
-				</entry>
-		        <entry key="bufferSafeCapacity" value="40000">
-		        	<description>
-		        		If this threshold is reached, flushing will occur in
-		        		the foreground and the buffer will be locked for writing
-		        		until it is finished. This should be larger than
-		        		autoFlushBufferSize.
-	        		</description>
-		        </entry>
-				<entry key="bufferFlushBatchSize" value="20000">
-					<description>
-						This should be the same size as, or smaller than
-						autoFlushBufferSize.
-					</description>
-				</entry>
-				<entry key="autoFlushBufferSize" value="20000">
-					<description>
-						If this threshold is reached, flushing will occur in
-						the background, during which time the buffer is still
-						available for writing.
-					</description>
-				</entry>
-				<entry key="autoFlushDormantSeconds" value="5">
-					<description>
-						If this threshold is reached, flushing will occur in the
-						background, during which time the buffer is still
-						available for writing.
-					</description>
-				</entry>
-			</map>
-		</property>
+	<bean class="org.trippi.impl.sesame.SesameSession" scope="prototype">
+		<constructor-arg ref="trippiSailRepository"/>
+		<constructor-arg value="test://model#"/>
+		<constructor-arg value="ri"/>
 	</bean>
-	
 </beans>

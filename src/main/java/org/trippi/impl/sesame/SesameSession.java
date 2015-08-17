@@ -26,20 +26,23 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.stereotype.Component;
 import org.trippi.Alias;
 import org.trippi.TripleIterator;
 import org.trippi.TrippiException;
 import org.trippi.TupleIterator;
 import org.trippi.AliasManager;
 import org.trippi.impl.base.DefaultAliasManager;
-import org.trippi.impl.base.TriplestoreSession;
 
 /**
  * A <code>TriplestoreSession</code> that wraps a SesameRepository.
  *
  * @author cwilper@cs.cornell.edu
  */
-public class SesameSession implements TriplestoreSession {
+@Component
+@Configurable
+public class SesameSession implements AliasManagedTriplestoreSession {
 	public static final Map<String, QueryLanguage> languageMap = new HashMap<String, QueryLanguage>();
 	static {
 		for (QueryLanguage i : QueryLanguage.values()) {
@@ -81,6 +84,9 @@ public class SesameSession implements TriplestoreSession {
 	 */
 	public SesameSession(Repository repository, AliasManager aliasManager, String serverUri, String model) throws RepositoryException {
 		m_repository = repository;
+		if (!repository.isInitialized()) {
+			repository.initialize();
+		}
 		connection = repository.getConnection();
 		m_aliasManager = aliasManager;
 		this.serverUri = serverUri;
@@ -88,22 +94,27 @@ public class SesameSession implements TriplestoreSession {
 		m_closed = false;
 	}
 
+	private Dataset ds;
 	private Dataset getDataset() throws RepositoryException {
-        RepositoryResult<Resource> graphs = connection.getContextIDs();
-        Set<org.openrdf.model.URI> ngs = new HashSet<org.openrdf.model.URI>();
-        while (graphs.hasNext()) {
-            Resource g = graphs.next();
-            if (g instanceof org.openrdf.model.URI) {
-                ngs.add((org.openrdf.model.URI) g);
-            }
-        }
-        DatasetImpl ds = new DatasetImpl();
-        for (org.openrdf.model.URI g : ngs) {
-            ds.addDefaultGraph(g);
-        }
+		if (ds == null) {
+	        RepositoryResult<Resource> graphs = connection.getContextIDs();
+	        Set<org.openrdf.model.URI> ngs = new HashSet<org.openrdf.model.URI>();
+	        while (graphs.hasNext()) {
+	            Resource g = graphs.next();
+	            if (g instanceof org.openrdf.model.URI) {
+	                ngs.add((org.openrdf.model.URI) g);
+	            }
+	        }
+	        DatasetImpl ds = new DatasetImpl();
+	        for (org.openrdf.model.URI g : ngs) {
+	            ds.addDefaultGraph(g);
+	        }
+	        this.ds = ds;
+		}
         return ds;
 	}
 	
+	@Override
 	public AliasManager getAliasManager() {
 		return m_aliasManager;
 	}
