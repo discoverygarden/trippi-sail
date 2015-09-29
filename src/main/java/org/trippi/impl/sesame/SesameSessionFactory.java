@@ -6,8 +6,10 @@ import org.springframework.context.ApplicationContextAware;
 import org.trippi.TrippiException;
 import org.trippi.impl.base.TriplestoreSessionFactory;
 
-public class SesameSessionFactory implements TriplestoreSessionFactory, ApplicationContextAware {
-	ApplicationContext context;
+public class SesameSessionFactory implements TriplestoreSessionFactory,
+		ApplicationContextAware {
+	private ApplicationContext context;
+
 	public SesameSessionFactory() {
 		// TODO Auto-generated constructor stub
 	}

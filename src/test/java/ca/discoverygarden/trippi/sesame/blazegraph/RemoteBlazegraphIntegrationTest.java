@@ -12,10 +12,13 @@ import org.trippi.TrippiException;
 import ca.discoverygarden.trippi.sesame.AbstractSesameConnectorIntegrationTest;
 
 @ContextConfiguration
-public class RemoteBlazegraphIntegrationTest extends AbstractSesameConnectorIntegrationTest {
+public class RemoteBlazegraphIntegrationTest extends
+		AbstractSesameConnectorIntegrationTest {
 	@Before
-	public void setUp() throws TrippiException, GraphElementFactoryException, URISyntaxException {
-		assumeTrue("We have a remote Blazegraph with which to test.", System.getProperties().containsKey("remoteBlazegraph"));
+	public void setUp() throws TrippiException, GraphElementFactoryException,
+			URISyntaxException {
+		assumeTrue("We have a remote Blazegraph with which to test.", System
+				.getProperties().containsKey("remoteBlazegraph"));
 		super.setUp();
 	}
 }

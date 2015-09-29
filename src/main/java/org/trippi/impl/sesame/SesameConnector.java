@@ -29,19 +29,21 @@ import org.trippi.io.TripleIteratorFactory;
  * @author cwilper@cs.cornell.edu
  */
 @Component
-@Configurable(dependencyCheck=true)
+@Configurable
 public class SesameConnector extends TriplestoreConnector {
 	private TriplestoreWriter m_writer;
-	
-	@Autowired(required=false)
-	private TripleIteratorFactory tripleIteratorFactory;
-	
-	@Autowired(required=false)
-	private Map<String, String> configuration;
-	private Logger logger = LoggerFactory.getLogger(SesameConnector.class.getName());
-    private boolean closed = true;
 
-	public SesameConnector() {}
+	@Autowired(required = false)
+	private TripleIteratorFactory tripleIteratorFactory;
+
+	@Autowired(required = false)
+	private Map<String, String> configuration;
+	private Logger logger = LoggerFactory.getLogger(SesameConnector.class
+			.getName());
+	private boolean closed = true;
+
+	public SesameConnector() {
+	}
 
 	@Deprecated
 	@Override
@@ -71,7 +73,7 @@ public class SesameConnector extends TriplestoreConnector {
 		}
 		return m_writer;
 	}
-	
+
 	protected GraphElementFactory graphElementFactory;
 
 	@Override
@@ -86,7 +88,7 @@ public class SesameConnector extends TriplestoreConnector {
 	public void close() throws TrippiException {
 		if (!closed) {
 			closed = true;
-			
+
 			try {
 				m_writer.flushBuffer();
 			} catch (IOException e) {
@@ -102,26 +104,24 @@ public class SesameConnector extends TriplestoreConnector {
 		return configuration;
 	}
 
-	@Autowired(required=true)
 	protected SesameSessionFactory sessionFactory;
+
 	public void setSessionFactory(SesameSessionFactory factory) {
 		sessionFactory = factory;
 	}
-	
+
 	@Override
 	public void open() throws TrippiException {
 		if (closed) {
 			closed = false;
-			
+
 			Map<String, String> config = getConfiguration();
-	
-			if (sessionFactory == null) 
-				sessionFactory = new SesameSessionFactory();
+
 			TriplestoreSessionPool sessionPool = new ConfigurableSessionPool(
-					sessionFactory,
-					ConfigUtils.getRequiredInt(config, "initialPoolSize"),
-					ConfigUtils.getRequiredInt(config, "maxGrowth"),
-					ConfigUtils.getRequiredInt(config, "spareSessions"));
+					sessionFactory, ConfigUtils.getRequiredInt(config,
+							"initialPoolSize"), ConfigUtils.getRequiredInt(
+							config, "maxGrowth"), ConfigUtils.getRequiredInt(
+							config, "spareSessions"));
 			UpdateBuffer updateBuffer = new MemUpdateBuffer(
 					ConfigUtils.getRequiredInt(config, "bufferSafeCapacity"),
 					ConfigUtils.getRequiredInt(config, "bufferFlushBatchSize"));
@@ -129,18 +129,18 @@ public class SesameConnector extends TriplestoreConnector {
 				tripleIteratorFactory = TripleIteratorFactory.defaultInstance();
 			}
 			try {
-				AliasManagedTriplestoreSession updateSession = sessionFactory.newSession();
-				m_writer = new ConcurrentTriplestoreWriter(
-						sessionPool,
-						updateSession.getAliasManager(),
-						updateSession,
-						updateBuffer,
-						tripleIteratorFactory,
-						ConfigUtils.getRequiredInt(config, "autoFlushBufferSize"),
-						ConfigUtils.getRequiredInt(config, "autoFlushDormantSeconds")
-				);
+				AliasManagedTriplestoreSession updateSession = sessionFactory
+						.newSession();
+				m_writer = new ConcurrentTriplestoreWriter(sessionPool,
+						updateSession.getAliasManager(), updateSession,
+						updateBuffer, tripleIteratorFactory,
+						ConfigUtils.getRequiredInt(config,
+								"autoFlushBufferSize"),
+						ConfigUtils.getRequiredInt(config,
+								"autoFlushDormantSeconds"));
 			} catch (IOException e) {
-				throw new TrippiException("Exception when opening connection.", e);
+				throw new TrippiException("Exception when opening connection.",
+						e);
 			}
 		}
 	}
@@ -149,7 +149,7 @@ public class SesameConnector extends TriplestoreConnector {
 	public void setTripleIteratorFactory(TripleIteratorFactory arg0) {
 		tripleIteratorFactory = arg0;
 	}
-	
+
 	@Override
 	public void finalize() throws TrippiException {
 		close();

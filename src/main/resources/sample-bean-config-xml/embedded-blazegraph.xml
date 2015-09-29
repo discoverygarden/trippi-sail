@@ -7,11 +7,11 @@
 	
 	<import resource="classpath:org/trippi/impl/sesame/base-context.xml"/>
 	<context:component-scan base-package="org.trippi.impl.sesame"/>
+	<context:property-override location="quads.properties" local-override="true"/>
 	
 	<bean id="blazegraphSail" class="com.bigdata.rdf.sail.BigdataSail">
 		<constructor-arg>
 			<props>
-				<prop key="com.bigdata.journal.AbstractJournal.bufferMode">DiskRW</prop>
 				<prop key="com.bigdata.journal.AbstractJournal.file">/tmp/blazegraph-database.jnl</prop>
 		 	</props>
 	 	</constructor-arg>
@@ -26,8 +26,15 @@
 	
 	<bean class="org.trippi.impl.sesame.SesameSession">
 		<constructor-arg ref="trippiSailRepository"/>
+		<constructor-arg ref="org.trippi.AliasManager"/>
 		<constructor-arg value="test://model#"/>
 		<constructor-arg value="ri"/>
 	</bean>
 	
+	<!-- 
+		XXX: The ResourceIndexModule looks for a bean explicitly named
+		"org.trippi.TriplestoreConnector", so let us create an alias for our
+		base to match.
+	-->
+	<alias name="org.trippi.impl.sesame.SesameConnector" alias="org.trippi.TriplestoreConnector"/>
 </beans>

@@ -27,6 +27,7 @@
 			
 	<bean class="org.trippi.impl.sesame.SesameSession" scope="prototype">
 		<constructor-arg ref="trippiSailRepository"/>
+		<constructor-arg ref="org.trippi.AliasManager"/>
 		<constructor-arg value="test://model#"/>
 		<constructor-arg value="ri"/>
 	</bean>

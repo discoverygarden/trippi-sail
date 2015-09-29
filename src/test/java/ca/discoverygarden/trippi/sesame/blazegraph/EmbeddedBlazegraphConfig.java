@@ -19,7 +19,8 @@ public class EmbeddedBlazegraphConfig {
 		tempfile.deleteOnExit();
 		Properties prop = new Properties();
 		prop.load(this.getClass().getResourceAsStream("quads.properties"));
-		prop.put("com.bigdata.journal.AbstractJournal.file", tempfile.getAbsolutePath());
+		prop.put("com.bigdata.journal.AbstractJournal.file",
+				tempfile.getAbsolutePath());
 		return new BigdataSail(prop);
 	}
 

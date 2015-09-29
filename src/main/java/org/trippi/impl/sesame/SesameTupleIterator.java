@@ -35,7 +35,8 @@ public class SesameTupleIterator extends TupleIterator {
 	private TupleQueryResult result;
 
 	public SesameTupleIterator(QueryLanguage lang, String queryText,
-			RepositoryConnection connection, Dataset dataset) throws TrippiException {
+			RepositoryConnection connection, Dataset dataset)
+			throws TrippiException {
 
 		try {
 			m_util = new RDFUtil();
@@ -44,22 +45,24 @@ public class SesameTupleIterator extends TupleIterator {
 
 		if (queryText.toLowerCase().trim().startsWith("ask")) {
 			try {
-				BooleanQuery query = connection.prepareBooleanQuery(lang, queryText);
+				BooleanQuery query = connection.prepareBooleanQuery(lang,
+						queryText);
 				query.setDataset(dataset);
 				result = new BooleanTupleResult(query.evaluate());
+			} catch (Exception e) {
+				throw new TrippiException("Exception while running ASK query: "
+						+ e.getMessage(), e);
 			}
-			catch (Exception e) {
-				throw new TrippiException("Exception while running ASK query: " + e.getMessage(), e);
-			}
-		}
-		else {
+		} else {
 			try {
-				TupleQuery query = connection.prepareTupleQuery(lang, queryText);
+				TupleQuery query = connection
+						.prepareTupleQuery(lang, queryText);
 				query.setDataset(dataset);
 				result = query.evaluate();
 			} catch (Exception e) {
-				throw new TrippiException("Exception while running Tuple (SELECT) query: "
-						+ e.getMessage(), e);
+				throw new TrippiException(
+						"Exception while running Tuple (SELECT) query: "
+								+ e.getMessage(), e);
 			}
 		}
 	}
@@ -149,7 +152,7 @@ public class SesameTupleIterator extends TupleIterator {
 					.getID().hashCode());
 		}
 	}
-	
+
 	private class BooleanBindingSet implements BindingSet {
 		/**
 		 * 
@@ -160,7 +163,7 @@ public class SesameTupleIterator extends TupleIterator {
 		public BooleanBindingSet(final boolean result) {
 			map = new HashMap<String, Binding>();
 			Binding binding = new Binding() {
-				
+
 				/**
 				 * 
 				 */
@@ -171,7 +174,7 @@ public class SesameTupleIterator extends TupleIterator {
 					ValueFactory vf = new ValueFactoryImpl();
 					return vf.createLiteral(result);
 				}
-				
+
 				@Override
 				public String getName() {
 					return "k0";
@@ -179,6 +182,7 @@ public class SesameTupleIterator extends TupleIterator {
 			};
 			map.put(binding.getName(), binding);
 		}
+
 		@Override
 		public Binding getBinding(String arg0) {
 			return map.get(arg0);
@@ -208,13 +212,13 @@ public class SesameTupleIterator extends TupleIterator {
 		public int size() {
 			return map.size();
 		}
-		
+
 	}
-	
+
 	private class BooleanTupleResult implements TupleQueryResult {
 		private boolean served = false;
 		private BooleanBindingSet result;
-		
+
 		public BooleanTupleResult(boolean result) {
 			this.result = new BooleanBindingSet(result);
 		}
@@ -247,7 +251,6 @@ public class SesameTupleIterator extends TupleIterator {
 		public List<String> getBindingNames() throws QueryEvaluationException {
 			return new ArrayList<String>(result.getBindingNames());
 		}
-		
-		
+
 	}
 }

@@ -5,6 +5,8 @@
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 	
+	<import resource="classpath:org/trippi/impl/sesame/base-context.xml"/>
+	
 	<context:component-scan base-package="org.trippi.impl.sesame"/>
 	
 	<bean id="remoteRepoFactory"
@@ -22,10 +24,18 @@
 			factory-bean="remoteRepo"
 			factory-method="getBigdataSailRemoteRepository"
 			destroy-method="shutDown"/>
-			
-	<bean class="org.trippi.impl.sesame.SesameSession" scope="prototype">
+
+	<bean class="org.trippi.impl.sesame.SesameSession" scope="prototype" >
 		<constructor-arg ref="trippiSailRepository"/>
+		<constructor-arg ref="org.trippi.AliasManager"/>
 		<constructor-arg value="test://model#"/>
 		<constructor-arg value="ri"/>
 	</bean>
+	
+	<!-- 
+		XXX: The ResourceIndexModule looks for a bean explicitly named
+		"org.trippi.TriplestoreConnector", so let us create an alias for our
+		base to match.
+	-->
+	<alias name="org.trippi.impl.sesame.SesameConnector" alias="org.trippi.TriplestoreConnector"/>
 </beans>

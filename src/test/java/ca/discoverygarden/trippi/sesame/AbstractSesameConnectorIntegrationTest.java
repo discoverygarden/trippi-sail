@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.jrdf.graph.GraphElementFactory;
 import org.jrdf.graph.GraphElementFactoryException;
@@ -28,39 +29,50 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 	protected TriplestoreWriter writer;
 	protected List<Triple> triples;
 	protected GraphElementFactory geFactory;
-	
+	private org.slf4j.Logger logger = org.slf4j.LoggerFactory
+			.getLogger(AbstractSesameConnectorIntegrationTest.class);
+
 	@Before
-	public void setUp() throws TrippiException, GraphElementFactoryException, URISyntaxException {
+	public void setUp() throws TrippiException, GraphElementFactoryException,
+			URISyntaxException {
 		writer = connector.getWriter();
 		geFactory = connector.getElementFactory();
-		
+
 		triples = new ArrayList<Triple>();
 		triples.add(geFactory.createTriple(
 				geFactory.createResource(new URI("this://thing")),
 				geFactory.createResource(new URI("has://that")),
-				geFactory.createResource(new URI("crazy://property"))
-				));
+				geFactory.createResource(new URI("crazy://property"))));
 	}
-	
+
 	private int getPresentCount(Triple i) throws TrippiException {
-			TripleIterator tripit = writer.findTriples(i.getSubject(), i.getPredicate(), i.getObject(), 100);
-			return tripit.count();
+		TripleIterator tripit = writer.findTriples(i.getSubject(),
+				i.getPredicate(), i.getObject(), 100);
+		return tripit.count();
 	}
-	
+
 	@Test
 	public void test() throws IOException, TrippiException {
+		Map<String, String> aliases = writer.getAliasMap();
+		System.out.println("Count: " + aliases.size());
+		for (String key : aliases.keySet()) {
+			logger.info(String.format("%s %s", key, aliases.get(key)));
+			System.out.println(String.format("%s %s", key, aliases.get(key)));
+		}
 		writer.add(triples, true);
-		for (Triple i: triples) {
+		for (Triple i : triples) {
 			assertTrue("Added.", getPresentCount(i) > 0);
 		}
 		testGraphRewrite();
 		writer.delete(triples, true);
-		for (Triple i: triples) {
+		for (Triple i : triples) {
 			assertTrue("Deleted.", getPresentCount(i) == 0);
 		}
 	}
-	
+
 	protected void testGraphRewrite() throws TrippiException {
-		assertTrue(writer.findTuples("sparql", "SELECT * FROM <#ri> WHERE { ?s <has://that> ?o }", 100, true).count() > 0);
+		assertTrue(writer.findTuples("sparql",
+				"SELECT * FROM <#ri> WHERE { ?s <has://that> ?o }", 100, true)
+				.count() > 0);
 	}
 }
