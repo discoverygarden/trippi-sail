@@ -31,12 +31,5 @@
 				<include>*.jar</include>
 			</includes>
 		</fileSet>
-		<fileSet>
-			<directory>target/dependencies-lower-priority</directory>
-			<outputDirectory>lower-priority</outputDirectory>
-			<includes>
-				<include>*.jar</include>
-			</includes>
-		</fileSet>
 	</fileSets>
 </assembly>

@@ -137,20 +137,7 @@
 						</goals>
 						<configuration>
 							<includeScope>compile</includeScope>
-							<excludeArtifactIds>javax.servlet-api,mulgara-core</excludeArtifactIds>
-							<overWriteIfNewer>true</overWriteIfNewer>
-						</configuration>
-					</execution>
-					<execution>
-						<!-- mulgara-core includes a copy of some openrdf stuff, which we need to override. -->
-						<id>dependencies-bad-dependencies</id>
-						<phase>package</phase>
-						<goals>
-							<goal>copy-dependencies</goal>
-						</goals>
-						<configuration>
-							<outputDirectory>${project.build.directory}/dependencies-lower-priority</outputDirectory>
-							<includeArtifactIds>mulgara-core</includeArtifactIds>
+							<excludeArtifactIds>javax.servlet-api</excludeArtifactIds>
 							<overWriteIfNewer>true</overWriteIfNewer>
 						</configuration>
 					</execution>

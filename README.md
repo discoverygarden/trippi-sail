@@ -37,7 +37,7 @@ This should generate both a `zip` and `tar.gz` file inside of the `target` direc
     </Context>
     ```
 
-    NOTE: It may be desirable to add other paths to the `virtualClasspath` value if you are using a triplestore other than Blazegraph, in order to make the relevant classes available for the next step.
+    NOTE: It may be desirable to add other paths to the `virtualClasspath` value if you are using a triplestore other than Blazegraph (1.5.3), in order to make the relevant classes available for the next step.
 1. Use Spring Bean configuration to inject a `org.openrdf.repository.Repository` implementation into our `org.trippi.impl.sesame.SesameSession` class. See the examples in the `src/main/resources/sample-bean-config-xml` directory from the source or `/opt/trippi-sail/example-bean-xml` directory from the extracted binary package for examples. The XML file should be created in `$FEDORA_HOME/server/config/spring`.
 1. Remove the reference to the resource index datastore in `$FEDORA_HOME/server/config/fedora.fcfg`; commenting it out should suffice. The section in particular is something like:
     ```xml
