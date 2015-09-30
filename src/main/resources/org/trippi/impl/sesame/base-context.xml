@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    	
+	<!-- NOT prototype, needs to be shared between sessions. -->
+    <bean id="org.trippi.AliasManager" class="org.trippi.impl.base.DefaultAliasManager"/>
+    
+	<context:property-override ignore-unresolvable="true"/>
+    
+	<bean id="org.trippi.impl.sesame.SesameConnector" class="org.trippi.impl.sesame.SesameConnector"
+			init-method="open"
+			destroy-method="close">	
+		<property name="tripleIteratorFactory">
+			<bean class="org.trippi.io.TripleIteratorFactory"/>
+		</property>
+		<property name="sessionFactory">
+			<bean class="org.trippi.impl.sesame.SesameSessionFactory"/>
+		</property>
+		<property name="configuration">
+			<map key-type="java.lang.String" value-type="java.lang.String">
+				<entry key="initialPoolSize" value="10">
+					<description>
+						The number of session to create in the pool initially.
+					</description>
+				</entry>
+				<entry key="maxGrowth" value="-1">
+					<description>
+						Upper bound on the number of sessions to maintain.
+						Magic values: -1 for no limit, 0 for fixed size.
+					</description>
+				</entry>
+				<entry key="spareSessions" value="10">
+					<description>
+						Number of unused sessions to keep available. Zero means
+						new sessions will only be created on demand. Note if
+						maxGrowth is 0, the value of this parameter is
+						inconsequential.
+					</description>
+				</entry>
+		        <entry key="bufferSafeCapacity" value="40000">
+		        	<description>
+		        		If this threshold is reached, flushing will occur in
+		        		the foreground and the buffer will be locked for writing
+		        		until it is finished. This should be larger than
+		        		autoFlushBufferSize.
+	        		</description>
+		        </entry>
+				<entry key="bufferFlushBatchSize" value="20000">
+					<description>
+						This should be the same size as, or smaller than
+						autoFlushBufferSize.
+					</description>
+				</entry>
+				<entry key="autoFlushBufferSize" value="20000">
+					<description>
+						If this threshold is reached, flushing will occur in
+						the background, during which time the buffer is still
+						available for writing.
+					</description>
+				</entry>
+				<entry key="autoFlushDormantSeconds" value="5">
+					<description>
+						If this threshold is reached, flushing will occur in the
+						background, during which time the buffer is still
+						available for writing.
+					</description>
+				</entry>
+			</map>
+		</property>
+	</bean>
+	
+</beans>
