@@ -40,6 +40,7 @@ This should generate both a `zip` and `tar.gz` file inside of the `target` direc
     NOTE: It may be desirable to add other paths to the `virtualClasspath` value if you are using a triplestore other than Blazegraph (1.5.3), in order to make the relevant classes available for the next step.
 1. Use Spring Bean configuration to inject a `org.openrdf.repository.Repository` implementation into our `org.trippi.impl.sesame.SesameSession` class. See the examples in the `src/main/resources/sample-bean-config-xml` directory from the source or `/opt/trippi-sail/example-bean-xml` directory from the extracted binary package for examples. The XML file should be created in `$FEDORA_HOME/server/config/spring`.
 1. Remove the reference to the resource index datastore in `$FEDORA_HOME/server/config/fedora.fcfg`; commenting it out should suffice. The section in particular is something like:
+
     ```xml
     <server xmlns="http://www.fedora.info/definitions/1/0/config/" class="org.fcrepo.server.BasicServer">
         [...]
@@ -56,6 +57,7 @@ This should generate both a `zip` and `tar.gz` file inside of the `target` direc
         [...]
     </server>
     ```
+    
 1. The RI rebuild does not use the same classloader used by Tomcat, so the above `virtualClasspath` is not sufficient. In order to be able to run the rebuild, the classpath will have to be added to the rebuild command. The easiest way to do this is to prepend to the `-cp` entry in `$FEDORA_HOME/server/bin/env-server.sh`; enter the path to the directory, followed by an asterisk, like: `/opt/trippi-sail/*`.
 1. Trippi as embedded in Fedora itself has Sesame/OpenRDF jars built-in, which cause NullPointerExceptions when querying, so it is necessary to move/rename `$CATALINA_BASE/webapps/fedora/WEB-INF/lib/openrdf-sesame-onejar-{version}.jar` such that it is not eligible for the classloader (change the extension away from `jar` or delete the file entirely, or move it somewhere else)..
 1. Now, we should be clear to stop Fedora, rebuild the RI and start Fedora, and that should be it: You should now be running Fedora with your other triplestore backing the RI.
