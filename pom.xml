@@ -161,4 +161,18 @@
 			</plugin>
 		</plugins>
 	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.fcrepo</groupId>
+				<artifactId>fcrepo-webapp-fedora</artifactId>
+				<version>${fedora.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<properties>
+		<fedora.version>3.6.2</fedora.version>
+	</properties>
 </project>
