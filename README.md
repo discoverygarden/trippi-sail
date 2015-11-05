@@ -65,7 +65,7 @@ Packaging should generate both a `zip` and `tar.gz` file inside of the `target` 
     ```
     
 1. The RI rebuild does not use the same classloader used by Tomcat, so the above `virtualClasspath` is not sufficient. In order to be able to run the rebuild, the classpath will have to be added to the rebuild command. The easiest way to do this is to prepend to the `-cp` entry in `$FEDORA_HOME/server/bin/env-server.sh`; enter the path to the directory, followed by an asterisk, like: `/opt/trippi-sail/*`.
-1. Trippi as embedded in Fedora itself has Sesame/OpenRDF jars built-in, which cause NullPointerExceptions when querying, so it is necessary to move/rename `$CATALINA_BASE/webapps/fedora/WEB-INF/lib/openrdf-sesame-onejar-{version}.jar` such that it is not eligible for the classloader (change the extension away from `jar` or delete the file entirely, or move it somewhere else)..
+1. Trippi as embedded in Fedora itself can have Sesame/OpenRDF jars built-in, which cause NullPointerExceptions when querying, so it may be necessary to move/rename `$CATALINA_BASE/webapps/fedora/WEB-INF/lib/openrdf-sesame-onejar-{version}.jar` such that it is not eligible for the classloader (change the extension away from `jar` or delete the file entirely, or move it somewhere else)..
 1. Now, we should be clear to stop Fedora, rebuild the RI and start Fedora, and that should be it: You should now be running Fedora with your other triplestore backing the RI.
 
 ## Troubleshooting/Issues
