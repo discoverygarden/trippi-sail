@@ -1,6 +1,6 @@
 package ca.discoverygarden.trippi.sesame.blazegraph;
 
-import static org.junit.Assume.*;
+import static org.junit.Assume.assumeTrue;
 
 import java.net.URISyntaxException;
 
@@ -13,12 +13,12 @@ import ca.discoverygarden.trippi.sesame.AbstractSesameConnectorIntegrationTest;
 
 @ContextConfiguration
 public class RemoteBlazegraphIntegrationTest extends
-		AbstractSesameConnectorIntegrationTest {
+AbstractSesameConnectorIntegrationTest {
+	@Override
 	@Before
 	public void setUp() throws TrippiException, GraphElementFactoryException,
-			URISyntaxException {
-		assumeTrue("We have a remote Blazegraph with which to test.", System
-				.getProperties().containsKey("remoteBlazegraph"));
+	URISyntaxException {
+		assumeTrue(System.getProperties().containsKey("remoteBlazegraph"));
 		super.setUp();
 	}
 }

@@ -21,7 +21,7 @@
 			<directory>target</directory>
 			<outputDirectory>.</outputDirectory>
 			<includes>
-				<include>trippi-sail-${pom.version}.jar</include>
+				<include>${project.artifactId}-${project.version}.jar</include>
 			</includes>
 		</fileSet>
 		<fileSet>
