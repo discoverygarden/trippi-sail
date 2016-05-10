@@ -151,6 +151,12 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 			String msg = "Error " + mod + " triples: " + e.getClass().getName();
 			if (e.getMessage() != null)
 				msg = msg + ": " + e.getMessage();
+
+			try {
+				connection.rollback();
+			} catch (RepositoryException f) {
+				throw new TrippiException(msg + " FAILED TO ROLLBACK!", f);
+			}
 			throw new TrippiException(msg, e);
 		}
 	}
@@ -185,7 +191,7 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 				// and "10"^^xsd:int into
 				// "10"^^<http://www.w3.org/2001/XMLSchema#int>
 				out = out.replaceAll("([\\s{\\^])" + alias.getKey()
-						+ ":([^\\s}]+)", "$1<" + alias.getExpansion() + "$2>");
+				+ ":([^\\s}]+)", "$1<" + alias.getExpansion() + "$2>");
 			}
 		} else {
 			out = doAliasReplacements(q);
@@ -310,7 +316,7 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 						getSesameResource(triple.getSubject(), valueFactory),
 						getSesameURI((URIReference) triple.getPredicate(),
 								valueFactory),
-								getSesameValue(triple.getObject(), valueFactory));
+						getSesameValue(triple.getObject(), valueFactory));
 	}
 
 	public static org.openrdf.model.Resource getSesameResource(
