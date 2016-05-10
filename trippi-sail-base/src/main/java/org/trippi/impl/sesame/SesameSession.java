@@ -136,13 +136,17 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 		try {
 			ValueFactory valueFactory = ValueFactoryImpl.getInstance();
 			Resource model = valueFactory.createURI(serverUri, this.model);
-			connection.begin();
-			if (add) {
-				connection.add(getSesameGraph(triples, valueFactory), model);
-			} else {
-				connection.remove(getSesameGraph(triples, valueFactory), model);
+			try {
+				connection.begin();
+				if (add) {
+					connection.add(getSesameGraph(triples, valueFactory), model);
+				} else {
+					connection.remove(getSesameGraph(triples, valueFactory), model);
+				}
+				connection.commit();
+			} catch (Exception e) {
+				connection.rollback();
 			}
-			connection.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 			String mod = "deleting";
@@ -152,11 +156,6 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 			if (e.getMessage() != null)
 				msg = msg + ": " + e.getMessage();
 
-			try {
-				connection.rollback();
-			} catch (RepositoryException f) {
-				throw new TrippiException(msg + " FAILED TO ROLLBACK!", f);
-			}
 			throw new TrippiException(msg, e);
 		}
 	}
