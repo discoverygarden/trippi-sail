@@ -1,6 +1,6 @@
 package ca.discoverygarden.trippi.sesame;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
@@ -16,12 +16,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.trippi.TripleIterator;
 import org.trippi.TriplestoreWriter;
 import org.trippi.TrippiException;
 import org.trippi.impl.sesame.SesameConnector;
 
+@TestExecutionListeners({ DependencyInjectionTestExecutionListener.class })
 @RunWith(SpringJUnit4ClassRunner.class)
 abstract public class AbstractSesameConnectorIntegrationTest {
 	@Autowired
@@ -34,7 +37,7 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 
 	@Before
 	public void setUp() throws TrippiException, GraphElementFactoryException,
-			URISyntaxException {
+	URISyntaxException {
 		writer = connector.getWriter();
 		geFactory = connector.getElementFactory();
 

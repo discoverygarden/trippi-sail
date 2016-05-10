@@ -4,6 +4,6 @@ import org.springframework.test.context.ContextConfiguration;
 
 @ContextConfiguration
 public class SesameMemoryStoreIntegrationTest extends
-		AbstractSesameConnectorIntegrationTest {
+AbstractSesameConnectorIntegrationTest {
 	// Everything done in abstract...
 }
