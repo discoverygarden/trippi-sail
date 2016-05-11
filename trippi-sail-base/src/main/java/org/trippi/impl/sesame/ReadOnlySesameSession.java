@@ -21,6 +21,6 @@ public class ReadOnlySesameSession extends AbstractSesameSession {
 
 	@Override
 	protected void doTriples(Iterable<Triple> triples, boolean add) throws TrippiException {
-		throw new TrippiException("Read-only Sesame Session; cannot add or delete triples.");
+		throw new ReadOnlySessionException("Read-only Sesame Session; cannot add or delete triples.");
 	}
 }

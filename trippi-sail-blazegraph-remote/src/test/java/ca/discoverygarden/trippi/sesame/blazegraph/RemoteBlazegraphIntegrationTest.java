@@ -23,6 +23,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.trippi.AliasManager;
 import org.trippi.TrippiException;
 import org.trippi.impl.sesame.ReadOnlySesameSession;
+import org.trippi.impl.sesame.ReadOnlySessionException;
 
 import ca.discoverygarden.trippi.sesame.AbstractSesameConnectorIntegrationTest;
 
@@ -47,6 +48,9 @@ AbstractSesameConnectorIntegrationTest implements ApplicationContextAware {
 
 	@After
 	public void tearDown() throws IOException, TrippiException {
+		if (writer == null) {
+			return;
+		}
 		for (Triple triple: other_triples) {
 			writer.delete(triple, false);
 		}
@@ -68,14 +72,14 @@ AbstractSesameConnectorIntegrationTest implements ApplicationContextAware {
 	}
 
 	@Test
-	@ExpectedException(TrippiException.class)
+	@ExpectedException(ReadOnlySessionException.class)
 	public void testDeleteReadOnly() throws TrippiException
 	{
 		readOnlySession.delete(other_triples);
 	}
 
 	@Test
-	@ExpectedException(TrippiException.class)
+	@ExpectedException(ReadOnlySessionException.class)
 	public void testAddReadOnly() throws TrippiException {
 		readOnlySession.add(other_triples);
 	}
