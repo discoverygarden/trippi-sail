@@ -300,6 +300,7 @@ public class SesameSession implements AliasManagedTriplestoreSession {
 
 	public static org.openrdf.model.Graph getSesameGraph(
 			Iterable<Triple> jrdfTriples, ValueFactory valueFactory) {
+		@SuppressWarnings("deprecation")
 		org.openrdf.model.Graph graph = new org.openrdf.model.impl.GraphImpl();
 
 		for (Triple triple : jrdfTriples) {
