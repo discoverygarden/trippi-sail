@@ -12,7 +12,9 @@
 	
 	<bean id="trippiSailRepository" scope="prototype"
 		class="com.bigdata.rdf.sail.BigdataSailRepository"
-		destroy-method="shutDown">
+		init-method="initialize"
+		destroy-method="shutDown"
+		lazy-init="true">
 		<constructor-arg ref="blazegraphSail"/>
 	</bean>
 	

@@ -4,13 +4,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.jrdf.graph.GraphElementFactory;
-import org.jrdf.graph.GraphElementFactoryException;
 import org.jrdf.graph.Triple;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,8 +34,7 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 			.getLogger(AbstractSesameConnectorIntegrationTest.class);
 
 	@Before
-	public void setUp() throws TrippiException, GraphElementFactoryException,
-	URISyntaxException {
+	public void setUp() throws Exception {
 		writer = connector.getWriter();
 		geFactory = connector.getElementFactory();
 
@@ -48,7 +45,7 @@ abstract public class AbstractSesameConnectorIntegrationTest {
 				geFactory.createResource(new URI("crazy://property"))));
 	}
 
-	private int getPresentCount(Triple i) throws TrippiException {
+	protected int getPresentCount(Triple i) throws TrippiException {
 		TripleIterator tripit = writer.findTriples(i.getSubject(),
 				i.getPredicate(), i.getObject(), 100);
 		return tripit.count();

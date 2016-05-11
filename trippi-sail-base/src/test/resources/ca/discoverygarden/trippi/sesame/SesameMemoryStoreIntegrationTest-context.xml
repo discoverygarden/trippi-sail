@@ -9,7 +9,9 @@
 	
 	<bean id="trippiSailRepository"
 		class="org.openrdf.repository.sail.SailRepository"
-		destroy-method="shutDown">
+		init-method="initialize"
+		destroy-method="shutDown"
+		lazy-init="true">
 		<constructor-arg>
 			<bean class="org.openrdf.sail.memory.MemoryStore"/>
 		</constructor-arg>

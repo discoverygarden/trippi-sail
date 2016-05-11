@@ -16,17 +16,17 @@ public class SesameSessionFactory implements TriplestoreSessionFactory,
 
 	@Override
 	public AliasManagedTriplestoreSession newSession() throws TrippiException {
-		return context.getBean(SesameSession.class);
+		return context.getBean(AbstractSesameSession.class);
 	}
 
 	@Override
 	public String[] listTripleLanguages() {
-		return SesameSession.TRIPLE_LANGUAGES;
+		return AbstractSesameSession.TRIPLE_LANGUAGES;
 	}
 
 	@Override
 	public String[] listTupleLanguages() {
-		return SesameSession.TUPLE_LANGUAGES;
+		return AbstractSesameSession.TUPLE_LANGUAGES;
 	}
 
 	@Override

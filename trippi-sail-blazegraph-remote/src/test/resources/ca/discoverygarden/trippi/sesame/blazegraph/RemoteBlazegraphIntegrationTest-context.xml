@@ -31,5 +31,4 @@
 		<constructor-arg value="test://model#"/>
 		<constructor-arg value="ri"/>
 	</bean>
-	
 </beans>
