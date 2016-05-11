@@ -87,7 +87,6 @@ AbstractSesameConnectorIntegrationTest implements ApplicationContextAware {
 	protected ApplicationContext context;
 	@Override
 	public void setApplicationContext(ApplicationContext arg0) throws BeansException {
-		// TODO Auto-generated method stub
 		context = arg0;
 	}
 }

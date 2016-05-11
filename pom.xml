@@ -87,8 +87,51 @@
 				<groupId>org.fcrepo</groupId>
 				<artifactId>fcrepo-webapp-fedora</artifactId>
 				<version>${fedora.version}</version>
-				<scope>import</scope>
-				<type>pom</type>
+				<scope>provided</scope>
+				<type>war</type>
+				<exclusions>
+					<exclusion>
+						<groupId>woodstox</groupId>
+						<artifactId>wstx-asl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.trippi</groupId>
+						<artifactId>trippi-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.woodstox</groupId>
+				<artifactId>wstx-asl</artifactId>
+				<version>3.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.trippi</groupId>
+				<artifactId>trippi-core</artifactId>
+				<version>1.5.10</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>openrdf-sesame-onejar</artifactId>
+						<groupId>org.fcrepo</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>slf4j-api</artifactId>
+						<groupId>org.slf4j</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>sesame-model</artifactId>
+						<groupId>org.openrdf.sesame</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jta</artifactId>
+						<groupId>org.fcrepo</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>log4j-over-slf4j</artifactId>
+						<groupId>org.slf4j</groupId>
+					</exclusion>
+				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -120,6 +163,12 @@
 				<groupId>org.openrdf.sesame</groupId>
 				<artifactId>sesame-repository-sail</artifactId>
 				<version>${sesame.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
