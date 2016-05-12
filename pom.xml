@@ -4,99 +4,7 @@
 	<groupId>ca.discoverygarden</groupId>
 	<artifactId>trippi-sail</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<dependencies>
-		<dependency>
-			<groupId>org.trippi</groupId>
-			<artifactId>trippi-core</artifactId>
-			<version>1.5.10</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>openrdf-sesame-onejar</artifactId>
-					<groupId>org.fcrepo</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>sesame-model</artifactId>
-					<groupId>org.openrdf.sesame</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>jta</artifactId>
-					<groupId>org.fcrepo</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-			<version>3.0.7.RELEASE</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context-support</artifactId>
-			<version>3.0.7.RELEASE</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-beans</artifactId>
-			<version>3.0.7.RELEASE</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.bigdata</groupId>
-			<artifactId>bigdata</artifactId>
-			<version>1.5.3</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>slf4j-log4j12</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>javax.servlet-api</artifactId>
-					<groupId>javax.servlet</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jetty</groupId>
-			<artifactId>jetty-client</artifactId>
-			<version>9.2.3.v20140905</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>3.0.1</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-test</artifactId>
-			<version>3.0.7.RELEASE</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>cglib</groupId>
-			<artifactId>cglib</artifactId>
-			<version>3.1</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-rdfxml</artifactId>
-			<version>2.7.13</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+
 	<repositories>
 		<repository>
 			<id>bigdata.releases</id>
@@ -120,7 +28,7 @@
 				<version>2.12.1</version>
 				<configuration>
 					<excludes>
-						<exclude>**/*IntegrationTest*</exclude>
+						<!-- <exclude>**/*IntegrationTest*</exclude> -->
 					</excludes>
 				</configuration>
 			</plugin>
@@ -148,13 +56,25 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<descriptor>src/assembly/bin.xml</descriptor>
-					<finalName>trippi-sail-${pom.version}</finalName>
+					<finalName>${project.artifactId}-${project.version}</finalName>
 				</configuration>
 				<executions>
 					<execution>
 						<phase>package</phase>
 						<goals>
 							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>test-jar</goal>
 						</goals>
 					</execution>
 				</executions>
@@ -167,12 +87,101 @@
 				<groupId>org.fcrepo</groupId>
 				<artifactId>fcrepo-webapp-fedora</artifactId>
 				<version>${fedora.version}</version>
-				<scope>import</scope>
-				<type>pom</type>
+				<scope>provided</scope>
+				<type>war</type>
+				<exclusions>
+					<exclusion>
+						<groupId>woodstox</groupId>
+						<artifactId>wstx-asl</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.trippi</groupId>
+						<artifactId>trippi-core</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.woodstox</groupId>
+				<artifactId>wstx-asl</artifactId>
+				<version>3.0.0</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.trippi</groupId>
+				<artifactId>trippi-core</artifactId>
+				<version>1.5.10</version>
+				<exclusions>
+					<exclusion>
+						<artifactId>openrdf-sesame-onejar</artifactId>
+						<groupId>org.fcrepo</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>slf4j-api</artifactId>
+						<groupId>org.slf4j</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>sesame-model</artifactId>
+						<groupId>org.openrdf.sesame</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>jta</artifactId>
+						<groupId>org.fcrepo</groupId>
+					</exclusion>
+					<exclusion>
+						<artifactId>log4j-over-slf4j</artifactId>
+						<groupId>org.slf4j</groupId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-test</artifactId>
+				<version>${spring.version}</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-context-support</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.springframework</groupId>
+				<artifactId>spring-beans</artifactId>
+				<version>${spring.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>cglib</groupId>
+				<artifactId>cglib</artifactId>
+				<version>3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.openrdf.sesame</groupId>
+				<artifactId>sesame-repository-sail</artifactId>
+				<version>${sesame.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<properties>
-		<fedora.version>3.6.2</fedora.version>
+		<fedora.version>3.8.1</fedora.version>
+		<blazegraph.version>2.1.0</blazegraph.version>
+		<spring.version>3.0.7.RELEASE</spring.version>
+		<sesame.version>2.7.13</sesame.version>
 	</properties>
+	<packaging>pom</packaging>
+	<modules>
+		<module>trippi-sail-blazegraph-embedded</module>
+		<module>trippi-sail-blazegraph-remote</module>
+		<module>trippi-sail-base</module>
+	</modules>
 </project>
