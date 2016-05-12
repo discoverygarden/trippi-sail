@@ -141,6 +141,7 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
 				connection.commit();
 			} catch (Exception e) {
 				connection.rollback();
+				throw e;
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
