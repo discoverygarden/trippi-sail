@@ -28,7 +28,7 @@
                 class="com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager"
                 destroy-method="close">
                 <!-- Assumes Blazegraph/Bigdata is running on localhost:8080. -->
-                <constructor-arg type="java.lang.String" value="http://localhost:9999/blazegraph"/>
+                <constructor-arg type="java.lang.String" value="http://localhost:8080/blazegraph"/>
                 <constructor-arg ref="httpClient"/>
                 <constructor-arg ref="executorPool"/>
         </bean>
