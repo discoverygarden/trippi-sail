@@ -35,13 +35,13 @@
 		<constructor-arg ref="executorPool" />
 	</bean>
 
-	<bean id="remoteRepo" scope="prototype" factory-bean="remoteRepoFactory"
+	<bean id="remoteRepo" factory-bean="remoteRepoFactory"
 		factory-method="getRepositoryForDefaultNamespace" />
 
-	<bean id="trippiSailRepository" scope="prototype" factory-bean="remoteRepo"
+	<bean id="trippiSailRepository" factory-bean="remoteRepo"
 		factory-method="getBigdataSailRemoteRepository" destroy-method="shutDown" />
 
-	<bean class="org.trippi.impl.sesame.SesameSession" scope="prototype">
+	<bean class="org.trippi.impl.sesame.SesameSession">
 		<constructor-arg ref="trippiSailRepository" />
 		<constructor-arg ref="org.trippi.AliasManager" />
 		<constructor-arg value="test://model#" />
