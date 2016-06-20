@@ -17,7 +17,7 @@
 			<bean class="org.trippi.io.TripleIteratorFactory"/>
 		</property>
 		<property name="sessionFactory">
-			<bean class="org.trippi.impl.sesame.SesameSessionFactory"/>
+			<bean class="org.trippi.impl.sesame.SesameSessionFactory" destroy-method="close"/>
 		</property>
 		<property name="configuration">
 			<map key-type="java.lang.String" value-type="java.lang.String">

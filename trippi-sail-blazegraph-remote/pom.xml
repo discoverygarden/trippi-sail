@@ -12,11 +12,51 @@
 			<groupId>com.blazegraph</groupId>
 			<artifactId>bigdata-client</artifactId>
 			<version>${blazegraph.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>sesame-runtime</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-rdfxml</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>com.blazegraph</groupId>
 			<artifactId>bigdata-core</artifactId>
 			<version>${blazegraph.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>sesame-runtime</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-rdfxml</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>log4j</artifactId>
+					<groupId>log4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
@@ -42,43 +82,176 @@
 		</dependency>
 		<dependency>
 			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-queryresultio-text</artifactId>
+			<artifactId>sesame-runtime</artifactId>
 			<version>${sesame.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>sesame-rio-rdfxml</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-nquads</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-queryresultio-text</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-n3</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-datatypes</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-binary</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-queryresultio-binary</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-rdfjson</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-trix</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-sail-rdbms</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-sail-nativerdf</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-queryparser-serql</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-repository-dataset</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>sesame-rio-languages</artifactId>
+					<groupId>org.openrdf.sesame</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
+			<artifactId>sesame-rio-rdfxml</artifactId>
 			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-datatypes</artifactId>
 			<version>${sesame.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-languages</artifactId>
-			<version>${sesame.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-ntriples</artifactId>
-			<version>${sesame.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-turtle</artifactId>
-			<version>${sesame.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.openrdf.sesame</groupId>
 			<artifactId>sesame-rio-nquads</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
 			<version>${sesame.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>sesame-queryresultio-text</artifactId>
 			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-rio-n3</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-rio-datatypes</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
 			<artifactId>sesame-rio-binary</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
 			<version>${sesame.version}</version>
 		</dependency>
 		<dependency>
+			<artifactId>sesame-queryresultio-binary</artifactId>
 			<groupId>org.openrdf.sesame</groupId>
-			<artifactId>sesame-rio-rdfjson</artifactId>
 			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-rio-rdfjson</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-rio-trix</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-sail-rdbms</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-sail-nativerdf</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-queryparser-serql</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-repository-dataset</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<artifactId>sesame-rio-languages</artifactId>
+			<groupId>org.openrdf.sesame</groupId>
+			<version>${sesame.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-log4j12</artifactId>
+			<version>1.6.1</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

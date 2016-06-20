@@ -7,11 +7,13 @@
 	
 	<import resource="classpath:org/trippi/impl/sesame/base-context.xml"/>
 	<context:component-scan base-package="org.trippi.impl.sesame"/>
-	<context:property-override location="quads.properties" local-override="true"/>
+	<bean id="props" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    	<property name="location" value="classpath:quads.properties"/>
+    </bean>
 	
 	<bean id="blazegraphSail" class="com.bigdata.rdf.sail.BigdataSail">
 		<constructor-arg>
-			<props>
+			<props merge="true">
 				<prop key="com.bigdata.journal.AbstractJournal.file">/tmp/blazegraph-database.jnl</prop>
 		 	</props>
 	 	</constructor-arg>

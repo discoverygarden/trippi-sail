@@ -284,10 +284,13 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
 
 	/**
 	 * Ensure close() gets called at garbage collection time.
+	 *
+	 * @throws Throwable
 	 */
 	@Override
-	public void finalize() throws TrippiException {
+	public void finalize() throws Throwable {
 		close();
+		super.finalize();
 	}
 
 	// ////////////////////////////////////////////////////////////////////////
@@ -355,4 +358,8 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
 		}
 	}
 
+	@Override
+	public boolean isClosed() {
+		return m_closed;
+	}
 }
