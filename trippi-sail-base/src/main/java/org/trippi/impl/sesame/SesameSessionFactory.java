@@ -7,16 +7,17 @@ import org.trippi.TrippiException;
 import org.trippi.impl.base.TriplestoreSessionFactory;
 
 public class SesameSessionFactory implements TriplestoreSessionFactory,
-		ApplicationContextAware {
+ApplicationContextAware {
 	private ApplicationContext context;
 
+
 	public SesameSessionFactory() {
-		// TODO Auto-generated constructor stub
 	}
 
 	@Override
 	public AliasManagedTriplestoreSession newSession() throws TrippiException {
-		return context.getBean(AbstractSesameSession.class);
+		AliasManagedTriplestoreSession session = context.getBean(AbstractSesameSession.class);
+		return session;
 	}
 
 	@Override
@@ -31,6 +32,7 @@ public class SesameSessionFactory implements TriplestoreSessionFactory,
 
 	@Override
 	public void close() throws TrippiException {
+		// No-op.
 	}
 
 	@Override

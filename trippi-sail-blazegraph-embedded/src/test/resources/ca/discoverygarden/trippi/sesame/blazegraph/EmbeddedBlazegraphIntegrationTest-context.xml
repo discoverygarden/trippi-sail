@@ -7,7 +7,7 @@
 	
 	<import resource="classpath:org/trippi/impl/sesame/base-context.xml"/>
 	
-	<context:component-scan base-package="ca.discoverygarden.trippi.sesame"/>
+	<context:component-scan base-package="ca.discoverygarden.trippi.sesame,ca.discoverygarden.trippi.sesame.blazegraph"/>
 	<context:property-placeholder/>
 	
 	<bean id="trippiSailRepository" scope="prototype"

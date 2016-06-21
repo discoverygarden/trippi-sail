@@ -11,6 +11,16 @@
 		<dependency>
 			<groupId>org.trippi</groupId>
 			<artifactId>trippi-core</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>lucene-core</artifactId>
+					<groupId>org.apache.lucene</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>wstx-asl</artifactId>
+					<groupId>woodstox</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -49,6 +59,12 @@
 		<dependency>
 			<groupId>org.openrdf.sesame</groupId>
 			<artifactId>sesame-repository-sail</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>commons-logging</groupId>
@@ -61,6 +77,23 @@
 			<artifactId>sesame-sail-memory</artifactId>
 			<version>${sesame.version}</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<artifactId>slf4j-api</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.6.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.woodstox</groupId>
+			<artifactId>wstx-asl</artifactId>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

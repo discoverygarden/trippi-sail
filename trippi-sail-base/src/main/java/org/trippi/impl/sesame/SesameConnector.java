@@ -120,8 +120,8 @@ public class SesameConnector extends TriplestoreConnector {
 			TriplestoreSessionPool sessionPool = new ConfigurableSessionPool(
 					sessionFactory, ConfigUtils.getRequiredInt(config,
 							"initialPoolSize"), ConfigUtils.getRequiredInt(
-							config, "maxGrowth"), ConfigUtils.getRequiredInt(
-							config, "spareSessions"));
+									config, "maxGrowth"), ConfigUtils.getRequiredInt(
+											config, "spareSessions"));
 			UpdateBuffer updateBuffer = new MemUpdateBuffer(
 					ConfigUtils.getRequiredInt(config, "bufferSafeCapacity"),
 					ConfigUtils.getRequiredInt(config, "bufferFlushBatchSize"));
@@ -129,8 +129,7 @@ public class SesameConnector extends TriplestoreConnector {
 				tripleIteratorFactory = TripleIteratorFactory.defaultInstance();
 			}
 			try {
-				AliasManagedTriplestoreSession updateSession = sessionFactory
-						.newSession();
+				AliasManagedTriplestoreSession updateSession = (AliasManagedTriplestoreSession) sessionPool.get();
 				m_writer = new ConcurrentTriplestoreWriter(sessionPool,
 						updateSession.getAliasManager(), updateSession,
 						updateBuffer, tripleIteratorFactory,
@@ -148,10 +147,5 @@ public class SesameConnector extends TriplestoreConnector {
 	@Override
 	public void setTripleIteratorFactory(TripleIteratorFactory arg0) {
 		tripleIteratorFactory = arg0;
-	}
-
-	@Override
-	public void finalize() throws TrippiException {
-		close();
 	}
 }

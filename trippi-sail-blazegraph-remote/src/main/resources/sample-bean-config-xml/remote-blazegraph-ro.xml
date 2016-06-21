@@ -9,23 +9,40 @@
 	
 	<context:component-scan base-package="org.trippi.impl.sesame"/>
 	
-	<bean id="remoteRepoFactory"
-		class="com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager">
-		<!-- Assumes Blazegraph/Bigdata is running on localhost:8080. -->
-		<constructor-arg type="java.lang.String" value="http://localhost:8080/bigdata"/>
-		<constructor-arg type="boolean" value="false"/>
-	</bean>
+	        <bean id="httpClientConfigurator" class="com.bigdata.rdf.sail.webapp.client.HttpClientConfigurator"
+          factory-method="getInstance"/>
+        <bean id="httpClient"
+          factory-bean="httpClientConfigurator"
+          factory-method="newInstance"
+          destroy-method="close"/>
+        <bean id="executorPool" class="java.util.concurrent.Executors"
+          factory-method="newCachedThreadPool"
+          destroy-method="shutdownNow">
+          <constructor-arg>
+            <bean class="com.bigdata.rdf.sail.webapp.client.DaemonThreadFactory"
+              factory-method="defaultThreadFactory"/>
+          </constructor-arg>
+        </bean>
+
+        <bean id="remoteRepoFactory"
+                class="com.bigdata.rdf.sail.webapp.client.RemoteRepositoryManager"
+                destroy-method="close">
+                <!-- Assumes Blazegraph/Bigdata is running on localhost:8080. -->
+                <constructor-arg type="java.lang.String" value="http://localhost:8080/blazegraph"/>
+                <constructor-arg ref="httpClient"/>
+                <constructor-arg ref="executorPool"/>
+        </bean>
 	
-	<bean id="remoteRepo" scope="prototype"
+	<bean id="remoteRepo"
 		factory-bean="remoteRepoFactory"
 		factory-method="getRepositoryForDefaultNamespace"/>
 	
-	<bean id="trippiSailRepository" scope="prototype"
+	<bean id="trippiSailRepository"
 			factory-bean="remoteRepo"
 			factory-method="getBigdataSailRemoteRepository"
 			destroy-method="shutDown"/>
 
-	<bean class="org.trippi.impl.sesame.ReadOnlySesameSession" scope="prototype" >
+	<bean class="org.trippi.impl.sesame.ReadOnlySesameSession">
 		<constructor-arg ref="trippiSailRepository"/>
 		<constructor-arg ref="org.trippi.AliasManager"/>
 		<constructor-arg value="test://model#"/>
