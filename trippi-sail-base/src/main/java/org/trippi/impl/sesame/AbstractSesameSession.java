@@ -357,9 +357,4 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
 			return valueFactory.createLiteral(value);
 		}
 	}
-
-	@Override
-	public boolean isClosed() {
-		return m_closed;
-	}
 }

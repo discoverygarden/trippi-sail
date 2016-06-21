@@ -5,6 +5,4 @@ import org.trippi.impl.base.TriplestoreSession;
 
 public interface AliasManagedTriplestoreSession extends TriplestoreSession {
 	public AliasManager getAliasManager();
-
-	public boolean isClosed();
 }
