@@ -27,6 +27,12 @@ mvn package -Dfedora.version=3.7.1
 
 Packaging should generate both a `zip` and `tar.gz` file inside of the `target` directory.
 
+NOTE: To run the "remote" Blazegraph tests, the `remoteBlazegraph` property must be passed:
+```
+# Assuming Blazegraph is running on port 9999 on the localhost.
+mvn package -DremoteBlazegraph=http://localhost:9999/blazegraph
+```
+
 ## Installation
 
 1. Install your Sail-compliant triplestore. NOTE: Do not put it in the same servlet container as Fedora, since Fedora cannot be running when rebuilding the RI.
