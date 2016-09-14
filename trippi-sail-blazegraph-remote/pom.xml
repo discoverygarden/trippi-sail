@@ -10,31 +10,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.blazegraph</groupId>
-			<artifactId>bigdata-client</artifactId>
-			<version>${blazegraph.version}</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>sesame-runtime</artifactId>
-					<groupId>org.openrdf.sesame</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>sesame-rio-rdfxml</artifactId>
-					<groupId>org.openrdf.sesame</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>slf4j-api</artifactId>
-					<groupId>org.slf4j</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>log4j</artifactId>
-					<groupId>log4j</groupId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>com.blazegraph</groupId>
 			<artifactId>bigdata-core</artifactId>
-			<version>${blazegraph.version}</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>sesame-runtime</artifactId>
@@ -254,4 +230,23 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+	    <dependencies>
+	        <dependency>
+	            <groupId>ca.discoverygarden</groupId>
+	            <artifactId>trippi-sail-base</artifactId>
+	            <version>0.0.1-SNAPSHOT</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>com.blazegraph</groupId>
+	            <artifactId>bigdata-core</artifactId>
+	            <version>${blazegraph.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>commons-codec</groupId>
+	            <artifactId>commons-codec</artifactId>
+	            <version>1.9</version>
+	        </dependency>
+	    </dependencies>
+	</dependencyManagement>
 </project>

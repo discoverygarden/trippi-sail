@@ -44,7 +44,7 @@
 							<goal>copy-dependencies</goal>
 						</goals>
 						<configuration>
-							<includeScope>compile</includeScope>
+                            <includeScope>runtime</includeScope>
 							<excludeArtifactIds>javax.servlet-api</excludeArtifactIds>
 							<overWriteIfNewer>true</overWriteIfNewer>
 						</configuration>
@@ -132,6 +132,7 @@
 						<groupId>org.slf4j</groupId>
 					</exclusion>
 				</exclusions>
+				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.springframework</groupId>
@@ -184,4 +185,21 @@
 		<module>trippi-sail-blazegraph-remote</module>
 		<module>trippi-sail-base</module>
 	</modules>
+	<dependencies>
+	    <dependency>
+	        <groupId>org.trippi</groupId>
+	        <artifactId>trippi-core</artifactId>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.fcrepo</groupId>
+	        <artifactId>fcrepo-webapp-fedora</artifactId>
+	        <type>war</type>
+	    </dependency>
+	    <dependency>
+	        <groupId>org.slf4j</groupId>
+	        <artifactId>slf4j-log4j12</artifactId>
+	        <version>1.7.21</version>
+	        <scope>test</scope>
+	    </dependency>
+	</dependencies>
 </project>
