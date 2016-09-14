@@ -26,6 +26,8 @@ import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
 import org.openrdf.repository.RepositoryResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.trippi.Alias;
 import org.trippi.AliasManager;
 import org.trippi.TripleIterator;
@@ -53,6 +55,8 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
     private Repository m_repository;
     private RepositoryConnection connection;
     private AliasManager m_aliasManager;
+
+    protected Logger logger = LoggerFactory.getLogger(AbstractSesameSession.class);
 
     private boolean m_closed;
 
@@ -169,7 +173,7 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
         }
         // base model URI includes separator
         out = Alias.replaceRelativeUris(out, serverUri);
-        System.out.println("Query: " + out);
+        logger.debug("Query: " + out);
 
         return out;
     }
@@ -197,6 +201,7 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
     }
 
     @Override
+
     public TripleIterator findTriples(SubjectNode subject, PredicateNode predicate, ObjectNode object)
             throws TrippiException {
         GraphQuery query;
@@ -232,13 +237,24 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
         }
     }
 
+    protected QueryLanguage parseLanguage(String language) throws TrippiException {
+        QueryLanguage lang = languageMap.get(language.toLowerCase());
+        if (lang == null) {
+            lang = languageMap.get(language.toLowerCase().trim());
+            if (lang == null) {
+                throw new TrippiException(String.format("Unsupported query language: '%s'", language.toLowerCase()));
+            }
+            else {
+                logger.debug(String.format("Using trimmed query language '%s' vs '%s'.", language.toLowerCase(),
+                        language.toLowerCase().trim()));
+            }
+        }
+        return lang;
+    }
+
     @Override
     public TripleIterator findTriples(String language, String queryText) throws TrippiException {
-        QueryLanguage lang = languageMap.get(language.toLowerCase());
-
-        if (lang == null) {
-            throw new TrippiException("Unsupported query language: " + language);
-        }
+        QueryLanguage lang = parseLanguage(language);
 
         try {
             return new SesameTripleIterator(lang, doAliasReplacements(queryText, lang == QueryLanguage.SERQL),
@@ -251,10 +267,7 @@ abstract public class AbstractSesameSession implements AliasManagedTriplestoreSe
 
     @Override
     public TupleIterator query(String queryText, String language) throws TrippiException {
-        QueryLanguage lang = languageMap.get(language.toLowerCase());
-        if (lang == null) {
-            throw new TrippiException("Unsupported query language: " + language);
-        }
+        QueryLanguage lang = parseLanguage(language);
 
         queryText = doAliasReplacements(queryText, lang == QueryLanguage.SERQL);
 
