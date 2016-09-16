@@ -243,6 +243,10 @@
 	            <version>${blazegraph.version}</version>
 	        </dependency>
 	        <dependency>
+                <!--
+                  XXX: This dependency could(/should?) possibly be moved up
+                  into either "trippi-sail" or "trippi-sail-base".
+                -->
 	            <groupId>commons-codec</groupId>
 	            <artifactId>commons-codec</artifactId>
 	            <version>1.9</version>
