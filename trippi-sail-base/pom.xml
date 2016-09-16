@@ -96,4 +96,14 @@
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
+	<dependencyManagement>
+	    <dependencies>
+	        <dependency>
+	            <groupId>ca.discoverygarden</groupId>
+	            <artifactId>trippi-sail</artifactId>
+	            <version>0.0.1-SNAPSHOT</version>
+	            <type>pom</type>
+	        </dependency>
+	    </dependencies>
+	</dependencyManagement>
 </project>
