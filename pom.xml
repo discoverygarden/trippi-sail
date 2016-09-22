@@ -5,12 +5,6 @@
 	<artifactId>trippi-sail</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 
-	<repositories>
-		<repository>
-			<id>bigdata.releases</id>
-			<url>http://www.systap.com/maven/releases</url>
-		</repository>
-	</repositories>
 	<build>
 		<plugins>
 			<plugin>
